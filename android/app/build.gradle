@@ -1,0 +1,22 @@
+plugins { id 'com.android.application' }
+android {
+    namespace 'de.digitaldanis.multidrop.audio'
+    compileSdk 35
+    buildToolsVersion "35.0.0"
+    defaultConfig {
+        applicationId 'de.digitaldanis.multidrop.audio'
+        minSdk 29
+        targetSdk 35
+        versionCode 2
+        versionName '0.2.0-preview'
+    }
+    sourceSets.main {
+        manifest.srcFile '../AndroidManifest.xml'
+        java.srcDirs = ['../src']
+        res.srcDirs = ['../res']
+        assets.srcDirs = ['../assets']
+    }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_1_8; targetCompatibility JavaVersion.VERSION_1_8 }
+}
+
+dependencies { implementation 'com.google.zxing:core:3.5.3' }
