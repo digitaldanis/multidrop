@@ -405,8 +405,7 @@ public class MainActivity extends Activity {
       for (Uri uri : uris)
         try {
           getContentResolver()
-              .takePersistableUriPermission(
-                  uri, data.getFlags() & Intent.FLAG_GRANT_READ_URI_PERMISSION);
+              .takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
         } catch (SecurityException ignored) {
         }
       select(uris);

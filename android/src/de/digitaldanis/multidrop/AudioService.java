@@ -80,6 +80,9 @@ public class AudioService extends Service {
               .createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "MultiDrop:audio");
       wifiLock.acquire();
       if (!tone) {
+        if (checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED)
+          throw new SecurityException("Audioaufnahme wurde nicht erlaubt");
         Intent permission = i.getParcelableExtra("projection");
         projection =
             ((MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE))

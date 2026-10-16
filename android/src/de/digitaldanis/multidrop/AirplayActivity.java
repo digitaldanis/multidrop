@@ -58,7 +58,7 @@ public class AirplayActivity extends Activity {
     super.onCreate(b);
     ScrollView scroll = new ScrollView(this);
     LinearLayout root = new LinearLayout(this);
-    root.setOrientation(1);
+    root.setOrientation(LinearLayout.VERTICAL);
     root.setPadding(dp(24), dp(24), dp(24), dp(32));
     root.setBackgroundColor(0xfff5f3fa);
     scroll.addView(root);
@@ -89,7 +89,7 @@ public class AirplayActivity extends Activity {
     button(root, "Übertragung stoppen", () -> stopService(new Intent(this, AudioService.class)));
     root.addView(text("Lautsprecher im WLAN", 21));
     list = new LinearLayout(this);
-    list.setOrientation(1);
+    list.setOrientation(LinearLayout.VERTICAL);
     root.addView(list);
     button(root, "Erneut suchen", this::restartDiscovery);
     root.addView(
