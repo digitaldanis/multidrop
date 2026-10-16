@@ -1,0 +1,25 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="2" android:versionName="0.2.0-preview">
+ <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="35"/>
+ <uses-feature android:name="android.hardware.microphone" android:required="false"/>
+ <uses-permission android:name="android.permission.INTERNET"/>
+ <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+ <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+ <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+ <uses-permission android:name="android.permission.WAKE_LOCK"/>
+ <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"/>
+ <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+ <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC"/>
+ <application android:label="MultiDrop" android:theme="@style/AppTheme" android:usesCleartextTraffic="true" android:allowBackup="false" android:icon="@drawable/icon" android:supportsRtl="true">
+  <activity android:name="de.digitaldanis.multidrop.MainActivity" android:launchMode="singleTop" android:exported="true">
+   <intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter>
+   <intent-filter><action android:name="android.intent.action.SEND"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="*/*"/></intent-filter>
+   <intent-filter><action android:name="android.intent.action.SEND_MULTIPLE"/><category android:name="android.intent.category.DEFAULT"/><data android:mimeType="*/*"/></intent-filter>
+  </activity>
+  <activity android:name="de.digitaldanis.multidrop.AirplayActivity" android:exported="false"/>
+  <service android:name="de.digitaldanis.multidrop.TransferService" android:exported="false" android:foregroundServiceType="dataSync"/>
+  <service android:name="de.digitaldanis.multidrop.AudioService" android:exported="false" android:foregroundServiceType="mediaProjection|mediaPlayback"/>
+ </application>
+</manifest>

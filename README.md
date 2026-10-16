@@ -24,6 +24,19 @@
 
 \* needs a supported Wi-Fi card, see [AirDrop setup](#airdrop-setup-linux).
 
+## Android preview
+
+A native Android 10+ app lives in [`android/`](android/README.md): LocalSend file
+transfers with receive approval, browser downloads with QR codes, Android's system
+share sheet (including Quick Share where installed), classic AirPlay audio, and a
+local transfer history. Download the preview APK from the **Android** Actions artifacts,
+or build it with Android Studio / `android/build.sh`.
+
+This is a platform-specific preview, not full desktop protocol parity. Direct AirDrop,
+AirPlay screen mirroring, and AirPlay 2 pairing are not implemented. Quick Share uses
+the Android provider rather than the desktop backend. See the [support matrix and
+build/test instructions](android/README.md).
+
 ## Install
 
 ### Windows
@@ -111,6 +124,7 @@ Bug reports welcome.
 ## Project layout
 
 ```
+android/          native Android app, build scripts, protocol and emulator tests
 src/multidrop/     service, protocols, Linux desktop app, Windows tray app
 tests/             unit, loopback and interop tests
 tools/             install-desktop.sh, fetch-doubletake.sh, build-omdrop-owl.sh, dev/
