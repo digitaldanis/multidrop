@@ -14,8 +14,8 @@ jobs:
   test-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: AirPlay receiver for the RAOP interop test
@@ -28,8 +28,8 @@ jobs:
   test-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -e ".[test]"
@@ -38,8 +38,8 @@ jobs:
   windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install ".[windows]" pyinstaller
@@ -71,7 +71,7 @@ jobs:
         shell: pwsh
         timeout-minutes: 5
         run: packaging/windows/test-installer.ps1
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: MultiDrop-windows
           path: |
@@ -81,7 +81,7 @@ jobs:
   deb:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build multidrop_*_all.deb
         run: packaging/deb/build-deb.sh dist
       - name: Install it and check the programs start
@@ -91,7 +91,7 @@ jobs:
           multidrop --version
           multidropd --help >/dev/null
           python3 -I -c "import sys; sys.path[:0]=['/usr/lib/multidrop','/usr/lib/multidrop/vendor']; import multidrop.daemon, aiohttp, google.protobuf; print('aiohttp', aiohttp.__version__)"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: MultiDrop-deb
           path: dist/*.deb
@@ -101,16 +101,16 @@ jobs:
     needs: [test-linux, test-windows, windows, deb]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install build && python -m build
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: MultiDrop-deb
           path: dist
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: MultiDrop-windows
           path: dist
@@ -133,12 +133,12 @@ jobs:
     needs: [release]
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           ref: gh-pages
           path: site
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: MultiDrop-deb
           path: dist
