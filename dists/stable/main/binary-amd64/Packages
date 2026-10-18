@@ -26,3 +26,31 @@ Description: AirDrop, Quick Share, LocalSend and AirPlay for Linux
  (doubletake, fetched with multidrop-fetch-doubletake) and AirPlay audio
  (PipeWire). GTK desktop app with a top bar menu, CLI and background service.
 
+Package: multidrop
+Architecture: all
+Version: 0.2.0
+Priority: optional
+Section: net
+Maintainer: digitaldanis <336468140+digitaldanis@users.noreply.github.com>
+Installed-Size: 4116
+Depends: python3 (>= 3.11), python3-cryptography, python3-zeroconf (>= 0.130),
+ python3-dbus-fast, python3-segno, python3-attr, python3-idna,
+ python3-typing-extensions, python3-gi, gir1.2-gtk-4.0, gir1.2-adw-1
+Recommends: network-manager, pkexec | policykit-1, curl,
+ gnome-shell-extension-appindicator | plasma-workspace, pipewire-bin, wireplumber,
+ gstreamer1.0-plugins-base, gstreamer1.0-plugins-good, gstreamer1.0-plugins-bad,
+ gstreamer1.0-pipewire, gstreamer1.0-tools
+Filename: pool/main/multidrop_0.2.0_all.deb
+Size: 538842
+MD5sum: c7383bd55ca91687edcc35f74ca56c2f
+SHA1: 794dca79dae2c136cf73d1358ff09a96ebbc17d8
+SHA256: e70b8024aedfbe84c65d76daabfccb83023d2896a62da7590d627d6b466c12e0
+SHA512: f24fa2d803b3124145e66b1fd2ea4383232989778f558d6d843e4033f84f703eefc99272f10fbdfec86d13be3515f1e12b14d8ba40525eca94b61281c355da57
+Homepage: https://github.com/digitaldanis/multidrop
+Description: AirDrop, Quick Share, LocalSend and AirPlay for Linux
+ Share files, your screen and audio with phones, Macs and TVs nearby:
+ Quick Share (Android, Samsung), LocalSend, browser download via QR code,
+ AirDrop (supported Wi-Fi cards with omdrop-owl), AirPlay screen mirroring
+ (doubletake, fetched with multidrop-fetch-doubletake) and AirPlay audio
+ (PipeWire). GTK desktop app with a top bar menu, CLI and background service.
+
