@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" href="data:,">
+<title>MultiDrop</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "nostr-tools": "https://esm.sh/nostr-tools@2.25.2",
+    "xstate": "https://esm.sh/xstate@5.33.3",
+    "qrcode-generator": "https://esm.sh/qrcode-generator@1.4.4"
+  }
+}
+</script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<header>
+  <h1>MultiDrop</h1>
+  <div id="status">connecting …</div>
+  <label class="alias-edit">Your name
+    <input id="alias-input" maxlength="40" autocomplete="off" aria-label="Your device name">
+  </label>
+</header>
+
+<main>
+  <p class="hint notice">The web edition finds devices through public nostr relays on the internet. Files go directly between the browsers; device names are only exchanged once two devices are connected. For AirDrop, Quick Share, LocalSend and AirPlay, use the <a href="https://github.com/digitaldanis/multidrop#download">MultiDrop app</a>.</p>
+  <section id="offers-section" hidden>
+    <h2>Incoming</h2>
+    <div id="offers"></div>
+  </section>
+
+  <section id="nearby">
+    <h2>Nearby</h2>
+    <p class="hint">Open MultiDrop on another device on the same Wi-Fi and it appears here – no code needed. Drop files or folders on it, or click it and choose. The other side accepts every transfer.</p>
+    <p class="hint" id="nearby-hint"></p>
+    <div id="devices" class="stage"></div>
+  </section>
+
+  <section>
+    <h2>Send text or a link</h2>
+    <form id="text-form">
+      <textarea id="text" rows="2" placeholder="Text or https://…" required></textarea>
+      <div class="row">
+        <select id="text-target"></select>
+        <button type="submit">Send</button>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <h2>Transfers</h2>
+    <div id="jobs"></div>
+  </section>
+
+  <section id="folder-section">
+    <h2>Receive folder</h2>
+    <p class="hint">Accepted files are written into this folder. Files from devices you remembered are saved here without asking. Choose it once; after a restart the browser may ask you to allow access again.</p>
+    <div class="row">
+      <span id="folder-state" class="meta">Not set</span>
+      <button id="folder-choose" type="button" class="primary">Choose folder</button>
+      <button id="folder-allow" type="button" hidden>Allow access</button>
+      <button id="folder-forget" type="button" class="danger" hidden>Forget</button>
+    </div>
+    <p id="folder-note" class="hint" hidden>Needs Chrome, Edge or Opera, which can write into a chosen folder.</p>
+  </section>
+
+  <details id="pair-section">
+    <summary>Remember a device (optional)</summary>
+    <p class="hint">Only needed to reach your own devices on other networks, for example your phone on mobile data. Show a code here and enter it there, or scan the QR code.</p>
+    <div id="pair-requests"></div>
+    <div class="row">
+      <button id="pair-show" type="button" class="primary">Show a pairing code</button>
+      <form id="pair-join" class="row">
+        <input id="pair-code" inputmode="numeric" pattern="[0-9 ]{6,7}" placeholder="6-digit code" autocomplete="off" aria-label="Pairing code" required>
+        <button type="submit">Pair</button>
+      </form>
+    </div>
+    <div id="pair-host" class="card" hidden>
+      <div class="name">Enter this code on the other device</div>
+      <div class="pin" id="pair-code-show"></div>
+      <div id="pair-qr"></div>
+      <p><a id="pair-url" target="_blank" rel="noreferrer"></a></p>
+      <p class="meta">Expires in 5 minutes. Or scan the code with the other device’s camera.</p>
+      <button id="pair-cancel" type="button">Cancel</button>
+    </div>
+    <p id="pair-state" class="meta"></p>
+    <button id="leave-zone" type="button" class="danger" hidden>Leave zone on this device</button>
+  </details>
+
+
+  <section>
+    <h2>History</h2>
+    <ol id="log" reversed></ol>
+  </section>
+</main>
+
+<input type="file" id="pick-files" multiple hidden>
+</body>
+</html>
