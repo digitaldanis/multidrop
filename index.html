@@ -1,12 +1,35 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MultiDrop APT repository</title>
+<title>MultiDrop – AirDrop alternative for Linux and Windows</title>
+<meta name="description" content="MultiDrop is a free, open-source AirDrop alternative for Linux and Windows. Send files to iPhone, Android and Samsung phones with AirDrop, Quick Share and LocalSend. No cloud, no account.">
+<meta name="keywords" content="AirDrop alternative, AirDrop for Linux, AirDrop for Windows, Quick Share for PC, Nearby Share Linux, LocalSend, AirPlay Linux, file transfer iPhone Linux">
+<link rel="canonical" href="https://digitaldanis.github.io/multidrop/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="MultiDrop – AirDrop alternative for Linux and Windows">
+<meta property="og:description" content="AirDrop, Quick Share, LocalSend and AirPlay in one free, open-source app. Send files between your PC and any phone nearby.">
+<meta property="og:url" content="https://digitaldanis.github.io/multidrop/">
+<meta property="og:image" content="https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MultiDrop",
+"applicationCategory":"UtilitiesApplication","operatingSystem":"Linux, Windows 10, Windows 11",
+"description":"Free, open-source AirDrop alternative for Linux and Windows with Quick Share, LocalSend and AirPlay support.",
+"url":"https://digitaldanis.github.io/multidrop/","downloadUrl":"https://github.com/digitaldanis/multidrop/releases/latest",
+"codeRepository":"https://github.com/digitaldanis/multidrop","license":"https://www.gnu.org/licenses/gpl-3.0.html",
+"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+</script>
 <style>body{font:16px/1.6 system-ui,sans-serif;max-width:46rem;margin:3rem auto;padding:0 1rem;color:#1d1d1f}
-pre{background:#f2f4f8;padding:1rem;border-radius:8px;overflow-x:auto}a{color:#0a64d8}</style></head>
+pre{background:#f2f4f8;padding:1rem;border-radius:8px;overflow-x:auto}a{color:#0a64d8}img{max-width:100%;border-radius:8px}</style></head>
 <body>
-<h1>MultiDrop APT repository</h1>
-<p>Packages for <a href="https://github.com/digitaldanis/multidrop">MultiDrop</a> – AirDrop, Quick Share,
-LocalSend and AirPlay for Linux. Ubuntu 24.04+ and Debian 13+.</p>
+<img src="https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png" alt="MultiDrop – AirDrop alternative for Linux and Windows">
+<h1>MultiDrop – the AirDrop alternative for Linux and Windows</h1>
+<p>iPhones speak AirDrop, Android and Samsung phones speak Quick Share, and the rest use LocalSend.
+<strong>MultiDrop speaks all of them</strong>, so your PC shows up in the share menu of every phone nearby.
+Free, open source, no cloud, no account.</p>
+<p><a href="https://github.com/digitaldanis/multidrop/releases/latest"><strong>Download for Windows and Linux</strong></a> ·
+<a href="https://github.com/digitaldanis/multidrop">Source on GitHub</a></p>
+<h2>Install on Ubuntu / Debian (APT)</h2>
+<p>Ubuntu 24.04+ and Debian 13+.</p>
 <pre>curl -fsSL https://digitaldanis.github.io/multidrop/multidrop-archive-keyring.gpg \
   | sudo tee /usr/share/keyrings/multidrop-archive-keyring.gpg &gt;/dev/null
 echo "deb [signed-by=/usr/share/keyrings/multidrop-archive-keyring.gpg] https://digitaldanis.github.io/multidrop stable main" \
@@ -14,4 +37,11 @@ echo "deb [signed-by=/usr/share/keyrings/multidrop-archive-keyring.gpg] https://
 sudo apt update
 sudo apt install multidrop</pre>
 <p>Signing key fingerprint: <code>93249FD950BF046802D087C2FE64BBDE5A1E946F</code></p>
+<h2>Features</h2>
+<ul>
+<li><strong>AirDrop for Linux</strong> – send and receive with iPhone, iPad and Mac</li>
+<li><strong>Quick Share for PC</strong> – Android and Samsung phones, no extra app</li>
+<li><strong>LocalSend</strong> compatible, plus browser download with QR code and PIN for any phone</li>
+<li><strong>AirPlay</strong> screen mirroring and audio streaming</li>
+</ul>
 </body></html>
