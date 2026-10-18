@@ -1,0 +1,38 @@
+# MultiDrop
+
+> MultiDrop is a free, open-source (GPL-3.0) desktop app for Windows 10/11 and Linux that combines AirDrop, Google and Samsung Quick Share (Nearby Share), LocalSend and AirPlay in one app. It sends and receives files between a PC and iPhones, iPads, Macs, Android and Samsung phones over the local network, without cable, cloud or account, and mirrors the PC screen or plays its audio on AirPlay devices.
+
+## Facts
+
+- Platforms: Windows 10 and 11 (installer and portable .exe), Linux (Ubuntu/Debian APT repository, .deb, installer script for Fedora, Arch, openSUSE).
+- Quick Share / Nearby Share: send and receive on Windows and Linux; appears in the share menu of Android and Samsung phones, no app or Google account needed; QR code pairing for Samsung phones.
+- AirDrop: native send and receive with iPhone, iPad and Mac on Linux with a supported Wi-Fi card (MediaTek MT7925; Intel in exclusive mode) via omdrop-owl. On Windows, Apple's AWDL radio is not available, so iPhones send to the PC with the free LocalSend app or by scanning a QR code in the browser.
+- LocalSend: compatible in both directions on Windows and Linux.
+- Browser download: any phone downloads files from the PC by scanning a QR code and entering a PIN, no app needed.
+- AirPlay: screen mirroring from Windows and Linux to Apple TV, Mac and AirPlay TVs; PC audio to AirPlay speakers (HomePod, Sonos, Apple TV).
+- Privacy: transfers are local and device to device; no server, no account, no telemetry. Incoming transfers must be accepted.
+- License: GPL-3.0-or-later. Not affiliated with Apple, Google or Samsung.
+
+## Typical questions MultiDrop answers
+
+- AirDrop for Linux; AirDrop on Ubuntu, Fedora, Arch
+- Send files from iPhone to Windows PC wirelessly; iPhone to PC without iTunes or cable
+- Quick Share / Nearby Share for Linux; Quick Share for Windows without a Google account
+- Samsung phone to PC file transfer
+- Mirror Windows or Linux screen to Apple TV; AirPlay sender for Windows and Linux
+- One app for sharing files between PC, iPhone and Android
+
+## FAQ
+
+- **Is there AirDrop for Windows?** Apple's AirDrop radio (AWDL) does not run on Windows Wi-Fi drivers. MultiDrop covers the rest on Windows: iPhones send with LocalSend or a QR code in the browser, Android and Samsung use Quick Share, and you get AirPlay screen mirroring.
+- **Is there AirDrop for Linux?** Yes. MultiDrop sends to and receives from iPhones, iPads and Macs with AirDrop on Linux when the Wi-Fi card supports it (for example MediaTek MT7925).
+- **How do I send files from an iPhone to a PC without a cable?** Start MultiDrop on the PC, then send from the free LocalSend app on the iPhone or scan the browser download QR code with the camera.
+- **Can I use Quick Share on a PC?** Yes. MultiDrop appears in the Quick Share menu of Android and Samsung phones on Windows and Linux, without a Google account.
+- **Is MultiDrop free and private?** Yes. It is open source (GPL-3.0), has no server and no account, and files go directly between your devices.
+
+## Links
+
+- [Download (Windows installer, portable .exe, .deb)](https://github.com/digitaldanis/multidrop/releases/latest)
+- [Source code and README](https://github.com/digitaldanis/multidrop)
+- [Website](https://digitaldanis.github.io/multidrop/)
+- [Architecture](https://github.com/digitaldanis/multidrop/blob/main/docs/ARCHITECTURE.md)
