@@ -134,7 +134,7 @@ const pageUrl = (params) => `${location.origin}${location.pathname}${params}`;
 
 function showStatus(text) {
   $("#status").textContent = text;
-  $("#status").classList.toggle("ready", text.startsWith("Ready"));
+  $("#status").classList.toggle("ready", text === "Online");
 }
 
 // -- pairing --------------------------------------------------------------
@@ -491,7 +491,7 @@ function addLog(content) {
 function onEvent(ev) {
   switch (ev.event) {
     case "connected":
-      showStatus(`Ready – visible as “${alias}”`);
+      showStatus("Online");
       break;
     case "devices":
       refreshDevices();
@@ -568,9 +568,33 @@ function onEvent(ev) {
   }
 }
 
+// -- installable app ------------------------------------------------------
+
+// The service worker lets the page open offline and be installed; the button
+// shows only when the browser offers installing (Chrome, Edge, Android).
+function setUpInstall() {
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+  let prompt = null;
+  const button = $("#install");
+  window.addEventListener("beforeinstallprompt", (ev) => {
+    ev.preventDefault();
+    prompt = ev;
+    button.hidden = false;
+  });
+  button.addEventListener("click", async () => {
+    if (!prompt) return;
+    prompt.prompt();
+    await prompt.userChoice.catch(() => {});
+    prompt = null;
+    button.hidden = true;
+  });
+  window.addEventListener("appinstalled", () => { button.hidden = true; });
+}
+
 // -- init -----------------------------------------------------------------
 
 function init() {
+  setUpInstall();
   alias = aliasName();
   document.querySelectorAll(".alias").forEach((e) => { e.textContent = `“${alias}”`; });
   showStatus("connecting …");
@@ -582,7 +606,7 @@ function init() {
     if (!name) { nameInput.value = alias; return; }
     alias = name;
     localStorage.setItem(LS_ALIAS, name);
-    showStatus(`Ready – visible as “${alias}”`);
+    showStatus("Online");
     wire.setAlias(name);
     refreshDevices();
   });
@@ -629,7 +653,7 @@ function init() {
   if (link) history.replaceState(null, "", location.pathname);
   wire.join()
     .then(() => {
-      showStatus(`Ready – visible as “${alias}”`);
+      showStatus("Online");
       refreshDevices();
       renderZoneState();
       if (link) {
