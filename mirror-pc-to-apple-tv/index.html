@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mirror a Windows or Linux PC to Apple TV with AirPlay</title>
+<meta name="description" content="AirPlay screen mirroring from Windows 10/11 and Linux to Apple TV, Mac and AirPlay TVs from Samsung, LG and Roku – plus PC audio on HomePod and Sonos. Free.">
+<link rel="canonical" href="https://digitaldanis.github.io/multidrop/mirror-pc-to-apple-tv/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MultiDrop">
+<meta property="og:title" content="Mirror a Windows or Linux PC to Apple TV with AirPlay">
+<meta property="og:description" content="AirPlay screen mirroring from Windows 10/11 and Linux to Apple TV, Mac and AirPlay TVs from Samsung, LG and Roku – plus PC audio on HomePod and Sonos. Free.">
+<meta property="og:url" content="https://digitaldanis.github.io/multidrop/mirror-pc-to-apple-tv/">
+<meta property="og:image" content="https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png">
+<meta property="og:locale" content="en">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mirror a Windows or Linux PC to Apple TV with AirPlay">
+<meta name="twitter:description" content="AirPlay screen mirroring from Windows 10/11 and Linux to Apple TV, Mac and AirPlay TVs from Samsung, LG and Roku – plus PC audio on HomePod and Sonos. Free.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png">
+<meta name="theme-color" content="#1f6feb">
+<link rel="icon" href="https://raw.githubusercontent.com/digitaldanis/multidrop/main/data/icons/multidrop.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "AirPlay from Windows and Linux to an Apple TV", "description": "AirPlay screen mirroring from Windows 10/11 and Linux to Apple TV, Mac and AirPlay TVs from Samsung, LG and Roku – plus PC audio on HomePod and Sonos. Free.", "inLanguage": "en", "url": "https://digitaldanis.github.io/multidrop/mirror-pc-to-apple-tv/", "image": "https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png", "author": {"@type": "Organization", "name": "MultiDrop", "url": "https://github.com/digitaldanis/multidrop"}, "about": {"@type": "SoftwareApplication", "name": "MultiDrop", "url": "https://digitaldanis.github.io/multidrop/", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Windows 10, Windows 11, Linux", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "MultiDrop", "item": "https://digitaldanis.github.io/multidrop/"}, {"@type": "ListItem", "position": 2, "name": "AirPlay from Windows and Linux to an Apple TV", "item": "https://digitaldanis.github.io/multidrop/mirror-pc-to-apple-tv/"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "HowTo", "name": "AirPlay from Windows and Linux to an Apple TV", "step": [{"@type": "HowToStep", "position": 1, "text": "Windows: install MultiDrop-Setup.exe (the portable .exe has no mirroring). Linux: install MultiDrop and run multidrop-fetch-doubletake once."}, {"@type": "HowToStep", "position": 2, "text": "Windows: click Show this PC's screen on a TV. Linux: open Mirror screen in the top bar menu."}, {"@type": "HowToStep", "position": 3, "text": "Pick the TV and enter the code it shows the first time."}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Does it need the same network?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The PC and the Apple TV must be on the same local network."}}]}</script>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#5f5f66;--card:#fff;--line:#e3e0d8;--accent:#1f6feb;--accent-fg:#fff;--code:#f1f0ec}
+@media (prefers-color-scheme:dark){:root{--bg:#121214;--fg:#ececee;--muted:#a0a0a8;--card:#1c1c20;--line:#2e2e34;--accent:#5a9cff;--accent-fg:#0b1220;--code:#1a1a1e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .bar{max-width:56rem;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;color:var(--fg);text-decoration:none;margin-inline-end:auto}
+.brand img{width:26px;height:26px}
+header.top nav{display:flex;align-items:center;gap:1rem;font-size:.92rem}
+header.top nav>a{color:var(--muted);text-decoration:none}header.top nav>a:hover{color:var(--fg)}
+.lang{position:relative}
+.lang summary{list-style:none;cursor:pointer;color:var(--muted);font-size:.92rem}.lang summary::-webkit-details-marker{display:none}
+.lang div{position:absolute;inset-inline-end:0;top:2rem;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.5rem;display:grid;grid-template-columns:repeat(2,minmax(8rem,auto));gap:.1rem;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.lang div a{padding:.3rem .6rem;border-radius:8px;color:var(--fg);text-decoration:none;font-size:.9rem}.lang div a:hover{background:var(--code)}.lang div a[aria-current]{font-weight:700}
+main{max-width:56rem;margin:0 auto;padding:2rem 1rem 3rem}
+img.banner{width:100%;height:auto;border-radius:16px;margin:1.5rem 0 .5rem}
+h1{font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.15;letter-spacing:-.01em;margin:.5rem 0 .8rem}
+h2{font-size:1.3rem;margin:2.8rem 0 .8rem}
+.lead{font-size:1.15rem;color:var(--muted);max-width:44rem}
+.trust{font-size:.9rem;color:var(--muted)}
+.cta{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.4rem 0}
+.cta a{padding:.65rem 1.1rem;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);text-decoration:none;font-weight:600;text-align:center}
+.cta a.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+ul.features{padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:.7rem}
+ul.features li,.cards a,.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.7rem}
+.cards a{color:var(--fg);text-decoration:none;display:block}.cards a:hover{border-color:var(--accent)}
+.cards strong{display:block}.cards span{color:var(--muted);font-size:.88rem}
+pre{direction:ltr;text-align:left;background:var(--code);padding:1rem;border-radius:12px;overflow-x:auto;font-size:.82rem}
+code{unicode-bidi:isolate;font-size:.9em;background:var(--code);padding:.05rem .3rem;border-radius:5px}pre code{background:none;padding:0}
+.faq details{margin:.5rem 0}.faq summary{cursor:pointer;font-weight:600}
+ol li{margin:.3rem 0}
+footer{color:var(--muted);font-size:.85rem;margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem}
+@media (max-width:540px){.cta a{flex:1 1 100%}header.top nav .hide-sm{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="bar">
+<a class="brand" href="https://digitaldanis.github.io/multidrop/"><img src="https://raw.githubusercontent.com/digitaldanis/multidrop/main/data/icons/multidrop.svg" alt="" width="26" height="26">MultiDrop</a>
+<nav><a href="https://digitaldanis.github.io/multidrop/#guides" class="hide-sm">Guides</a><a href="https://github.com/digitaldanis/multidrop/releases/latest" class="hide-sm">Download</a><a href="https://github.com/digitaldanis/multidrop">GitHub</a></nav>
+</div></header>
+<main>
+<h1>AirPlay from Windows and Linux to an Apple TV</h1>
+<p class="lead">Show your PC screen on an Apple TV or AirPlay TV, or play the PC&#x27;s sound on a HomePod or Sonos speaker – from Windows or Linux.</p>
+<div class="cta">
+<a class="primary" href="https://github.com/digitaldanis/multidrop/releases/latest">Download for Windows</a>
+<a href="https://digitaldanis.github.io/multidrop/#linux">Install on Linux</a>
+<a href="https://github.com/digitaldanis/multidrop">★ Source code on GitHub</a>
+</div>
+<h2>Screen mirroring</h2>
+<p>MultiDrop uses <a href="https://github.com/omarroth/doubletake">doubletake</a> as its AirPlay mirroring engine. It works with Apple TV, Macs and AirPlay TVs from Samsung, LG, Roku and others. The first time, enter the code the TV shows. Tested with real Apple TVs.</p>
+<h2>Audio</h2>
+<p>Play this PC&#x27;s sound on a speaker sends your PC audio to AirPlay speakers such as HomePod, Sonos and Apple TV. Receivers that require a password for AirPlay 1 streams are marked as not supported.</p>
+<h2>How to set it up</h2>
+<ol>
+<li>Windows: install MultiDrop-Setup.exe (the portable .exe has no mirroring). Linux: install MultiDrop and run <code>multidrop-fetch-doubletake</code> once.</li>
+<li>Windows: click Show this PC&#x27;s screen on a TV. Linux: open Mirror screen in the top bar menu.</li>
+<li>Pick the TV and enter the code it shows the first time.</li>
+</ol>
+<h2>Questions</h2>
+<div class="faq">
+<details><summary>Does it need the same network?</summary><p>Yes. The PC and the Apple TV must be on the same local network.</p></details>
+</div>
+<h2>More guides</h2>
+<div class="cards" lang="en" dir="ltr"><a href="https://digitaldanis.github.io/multidrop/airdrop-for-linux/"><strong>AirDrop for Linux</strong><span>Send and receive with iPhone, iPad and Mac</span></a><a href="https://digitaldanis.github.io/multidrop/airdrop-for-windows/"><strong>AirDrop for Windows?</strong><span>What works between iPhone and a Windows PC</span></a><a href="https://digitaldanis.github.io/multidrop/quick-share-for-linux/"><strong>Quick Share for Linux</strong><span>Android and Samsung phones send to your PC</span></a><a href="https://digitaldanis.github.io/multidrop/quick-share-for-windows/"><strong>Quick Share for Windows</strong><span>Open source, no Google account</span></a><a href="https://digitaldanis.github.io/multidrop/iphone-to-pc/"><strong>iPhone to PC</strong><span>Photos and files over Wi-Fi, no cable</span></a><a href="https://digitaldanis.github.io/multidrop/alternatives/"><strong>Compared</strong><span>LocalSend, NearDrop, rquickshare, OpenDrop</span></a></div>
+<footer>
+<p>AirDrop and AirPlay are trademarks of Apple Inc., Quick Share of Google LLC and Samsung Electronics. MultiDrop is an independent open-source project.</p>
+<p><a href="https://github.com/digitaldanis/multidrop">GitHub</a> · <a href="https://github.com/digitaldanis/multidrop/releases">Releases</a> · <a href="https://digitaldanis.github.io/multidrop/llms.txt">llms.txt</a> · GPL-3.0</p>
+</footer>
+</main>
+</body>
+</html>

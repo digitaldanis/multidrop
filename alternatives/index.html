@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MultiDrop vs LocalSend, NearDrop, rquickshare and OpenDrop</title>
+<meta name="description" content="How MultiDrop compares to LocalSend, NearDrop, rquickshare, OpenDrop and Google&#x27;s Quick Share for Windows: platforms, protocols, AirDrop, Quick Share, AirPlay.">
+<link rel="canonical" href="https://digitaldanis.github.io/multidrop/alternatives/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MultiDrop">
+<meta property="og:title" content="MultiDrop vs LocalSend, NearDrop, rquickshare and OpenDrop">
+<meta property="og:description" content="How MultiDrop compares to LocalSend, NearDrop, rquickshare, OpenDrop and Google&#x27;s Quick Share for Windows: platforms, protocols, AirDrop, Quick Share, AirPlay.">
+<meta property="og:url" content="https://digitaldanis.github.io/multidrop/alternatives/">
+<meta property="og:image" content="https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png">
+<meta property="og:locale" content="en">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MultiDrop vs LocalSend, NearDrop, rquickshare and OpenDrop">
+<meta name="twitter:description" content="How MultiDrop compares to LocalSend, NearDrop, rquickshare, OpenDrop and Google&#x27;s Quick Share for Windows: platforms, protocols, AirDrop, Quick Share, AirPlay.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png">
+<meta name="theme-color" content="#1f6feb">
+<link rel="icon" href="https://raw.githubusercontent.com/digitaldanis/multidrop/main/data/icons/multidrop.svg" type="image/svg+xml">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "MultiDrop compared with other file sharing apps", "description": "How MultiDrop compares to LocalSend, NearDrop, rquickshare, OpenDrop and Google's Quick Share for Windows: platforms, protocols, AirDrop, Quick Share, AirPlay.", "inLanguage": "en", "url": "https://digitaldanis.github.io/multidrop/alternatives/", "image": "https://raw.githubusercontent.com/digitaldanis/multidrop/main/docs/banner.png", "author": {"@type": "Organization", "name": "MultiDrop", "url": "https://github.com/digitaldanis/multidrop"}, "about": {"@type": "SoftwareApplication", "name": "MultiDrop", "url": "https://digitaldanis.github.io/multidrop/", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Windows 10, Windows 11, Linux", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "MultiDrop", "item": "https://digitaldanis.github.io/multidrop/"}, {"@type": "ListItem", "position": 2, "name": "MultiDrop compared with other file sharing apps", "item": "https://digitaldanis.github.io/multidrop/alternatives/"}]}</script>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#5f5f66;--card:#fff;--line:#e3e0d8;--accent:#1f6feb;--accent-fg:#fff;--code:#f1f0ec}
+@media (prefers-color-scheme:dark){:root{--bg:#121214;--fg:#ececee;--muted:#a0a0a8;--card:#1c1c20;--line:#2e2e34;--accent:#5a9cff;--accent-fg:#0b1220;--code:#1a1a1e}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:var(--accent)}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+header.top .bar{max-width:56rem;margin:0 auto;padding:.6rem 1rem;display:flex;align-items:center;gap:1rem}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;color:var(--fg);text-decoration:none;margin-inline-end:auto}
+.brand img{width:26px;height:26px}
+header.top nav{display:flex;align-items:center;gap:1rem;font-size:.92rem}
+header.top nav>a{color:var(--muted);text-decoration:none}header.top nav>a:hover{color:var(--fg)}
+.lang{position:relative}
+.lang summary{list-style:none;cursor:pointer;color:var(--muted);font-size:.92rem}.lang summary::-webkit-details-marker{display:none}
+.lang div{position:absolute;inset-inline-end:0;top:2rem;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.5rem;display:grid;grid-template-columns:repeat(2,minmax(8rem,auto));gap:.1rem;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.lang div a{padding:.3rem .6rem;border-radius:8px;color:var(--fg);text-decoration:none;font-size:.9rem}.lang div a:hover{background:var(--code)}.lang div a[aria-current]{font-weight:700}
+main{max-width:56rem;margin:0 auto;padding:2rem 1rem 3rem}
+img.banner{width:100%;height:auto;border-radius:16px;margin:1.5rem 0 .5rem}
+h1{font-size:clamp(1.8rem,5vw,2.6rem);line-height:1.15;letter-spacing:-.01em;margin:.5rem 0 .8rem}
+h2{font-size:1.3rem;margin:2.8rem 0 .8rem}
+.lead{font-size:1.15rem;color:var(--muted);max-width:44rem}
+.trust{font-size:.9rem;color:var(--muted)}
+.cta{display:flex;flex-wrap:wrap;gap:.6rem;margin:1.4rem 0}
+.cta a{padding:.65rem 1.1rem;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);text-decoration:none;font-weight:600;text-align:center}
+.cta a.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+ul.features{padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:.7rem}
+ul.features li,.cards a,.faq details{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.85rem 1rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.7rem}
+.cards a{color:var(--fg);text-decoration:none;display:block}.cards a:hover{border-color:var(--accent)}
+.cards strong{display:block}.cards span{color:var(--muted);font-size:.88rem}
+pre{direction:ltr;text-align:left;background:var(--code);padding:1rem;border-radius:12px;overflow-x:auto;font-size:.82rem}
+code{unicode-bidi:isolate;font-size:.9em;background:var(--code);padding:.05rem .3rem;border-radius:5px}pre code{background:none;padding:0}
+.faq details{margin:.5rem 0}.faq summary{cursor:pointer;font-weight:600}
+ol li{margin:.3rem 0}
+footer{color:var(--muted);font-size:.85rem;margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem}
+@media (max-width:540px){.cta a{flex:1 1 100%}header.top nav .hide-sm{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><div class="bar">
+<a class="brand" href="https://digitaldanis.github.io/multidrop/"><img src="https://raw.githubusercontent.com/digitaldanis/multidrop/main/data/icons/multidrop.svg" alt="" width="26" height="26">MultiDrop</a>
+<nav><a href="https://digitaldanis.github.io/multidrop/#guides" class="hide-sm">Guides</a><a href="https://github.com/digitaldanis/multidrop/releases/latest" class="hide-sm">Download</a><a href="https://github.com/digitaldanis/multidrop">GitHub</a></nav>
+</div></header>
+<main>
+<h1>MultiDrop compared with other file sharing apps</h1>
+<p class="lead">MultiDrop builds on several great open-source projects. Here is what each one does, so you can pick the right tool.</p>
+<div class="cta">
+<a class="primary" href="https://github.com/digitaldanis/multidrop/releases/latest">Download for Windows</a>
+<a href="https://digitaldanis.github.io/multidrop/#linux">Install on Linux</a>
+<a href="https://github.com/digitaldanis/multidrop">★ Source code on GitHub</a>
+</div>
+<h2>LocalSend</h2>
+<p>Cross-platform app for every system. Both devices need the LocalSend app. MultiDrop speaks LocalSend too, and adds Quick Share and AirDrop so phones can send without an extra app.</p>
+<h2>NearDrop</h2>
+<p>Quick Share receiver for macOS. MultiDrop covers Windows and Linux instead.</p>
+<h2>rquickshare</h2>
+<p>Quick Share for Linux and macOS, written in Rust. MultiDrop adds AirDrop, LocalSend, browser download and AirPlay in the same app, and runs on Windows.</p>
+<h2>OpenDrop</h2>
+<p>Open AirDrop implementation from the SEEMOO lab, a command-line research tool. MultiDrop uses omdrop-owl for the AWDL link and offers a desktop app.</p>
+<h2>Google Quick Share for Windows</h2>
+<p>Google&#x27;s official app, Windows only and Quick Share only. MultiDrop is open source, needs no account, and also runs on Linux.</p>
+<h2>In short</h2>
+<p>Pick <strong>MultiDrop</strong> if you want one app on Windows or Linux that every phone can send to – iPhone, Android and Samsung – plus AirPlay to your TV.</p>
+
+
+<h2>More guides</h2>
+<div class="cards" lang="en" dir="ltr"><a href="https://digitaldanis.github.io/multidrop/airdrop-for-linux/"><strong>AirDrop for Linux</strong><span>Send and receive with iPhone, iPad and Mac</span></a><a href="https://digitaldanis.github.io/multidrop/airdrop-for-windows/"><strong>AirDrop for Windows?</strong><span>What works between iPhone and a Windows PC</span></a><a href="https://digitaldanis.github.io/multidrop/quick-share-for-linux/"><strong>Quick Share for Linux</strong><span>Android and Samsung phones send to your PC</span></a><a href="https://digitaldanis.github.io/multidrop/quick-share-for-windows/"><strong>Quick Share for Windows</strong><span>Open source, no Google account</span></a><a href="https://digitaldanis.github.io/multidrop/iphone-to-pc/"><strong>iPhone to PC</strong><span>Photos and files over Wi-Fi, no cable</span></a><a href="https://digitaldanis.github.io/multidrop/mirror-pc-to-apple-tv/"><strong>Mirror to Apple TV</strong><span>AirPlay from Windows and Linux</span></a></div>
+<footer>
+<p>AirDrop and AirPlay are trademarks of Apple Inc., Quick Share of Google LLC and Samsung Electronics. MultiDrop is an independent open-source project.</p>
+<p><a href="https://github.com/digitaldanis/multidrop">GitHub</a> · <a href="https://github.com/digitaldanis/multidrop/releases">Releases</a> · <a href="https://digitaldanis.github.io/multidrop/llms.txt">llms.txt</a> · GPL-3.0</p>
+</footer>
+</main>
+</body>
+</html>

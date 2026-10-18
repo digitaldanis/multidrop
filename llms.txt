@@ -10,6 +10,7 @@
 - LocalSend: compatible in both directions on Windows and Linux.
 - Browser download: any phone downloads files from the PC by scanning a QR code and entering a PIN, no app needed.
 - AirPlay: screen mirroring from Windows and Linux to Apple TV, Mac and AirPlay TVs; PC audio to AirPlay speakers (HomePod, Sonos, Apple TV).
+- Tested with real devices: Quick Share with Android and Samsung Galaxy phones, AirPlay screen mirroring with Apple TVs, AirDrop between Linux and Mac.
 - Privacy: transfers are local and device to device; no server, no account, no telemetry. Incoming transfers must be accepted.
 - License: GPL-3.0-or-later. Not affiliated with Apple, Google or Samsung.
 
@@ -29,6 +30,16 @@
 - **How do I send files from an iPhone to a PC without a cable?** Start MultiDrop on the PC, then send from the free LocalSend app on the iPhone or scan the browser download QR code with the camera.
 - **Can I use Quick Share on a PC?** Yes. MultiDrop appears in the Quick Share menu of Android and Samsung phones on Windows and Linux, without a Google account.
 - **Is MultiDrop free and private?** Yes. It is open source (GPL-3.0), has no server and no account, and files go directly between your devices.
+
+## Guides
+
+- [AirDrop for Linux](https://digitaldanis.github.io/multidrop/airdrop-for-linux/): Real AirDrop on Linux with MultiDrop: send and receive files between Ubuntu, Debian, Fedora or Arch and an iPhone, iPad or Mac. Free and open source.
+- [AirDrop for Windows: what works and what doesn't](https://digitaldanis.github.io/multidrop/airdrop-for-windows/): Is there AirDrop for Windows? Not Apple's radio – but MultiDrop gets files between iPhone and Windows 10/11 without cable, iTunes or cloud. Free and open source.
+- [Quick Share (Nearby Share) for Linux](https://digitaldanis.github.io/multidrop/quick-share-for-linux/): Quick Share (Nearby Share) on Linux: your Ubuntu, Debian, Fedora or Arch PC appears in the share menu of Android and Samsung phones. Send and receive, no Google account.
+- [Quick Share for Windows, open source](https://digitaldanis.github.io/multidrop/quick-share-for-windows/): Send files between Windows 10/11 and Android or Samsung phones with Quick Share – plus LocalSend and AirPlay in the same open-source app. No Google account.
+- [Send files from an iPhone to a PC without a cable](https://digitaldanis.github.io/multidrop/iphone-to-pc/): How to send photos, videos and files from an iPhone to a Windows or Linux PC over Wi-Fi with MultiDrop: AirDrop on Linux, LocalSend or a QR code on Windows.
+- [AirPlay from Windows and Linux to an Apple TV](https://digitaldanis.github.io/multidrop/mirror-pc-to-apple-tv/): AirPlay screen mirroring from Windows 10/11 and Linux to Apple TV, Mac and AirPlay TVs from Samsung, LG and Roku – plus PC audio on HomePod and Sonos. Free.
+- [MultiDrop compared with other file sharing apps](https://digitaldanis.github.io/multidrop/alternatives/): How MultiDrop compares to LocalSend, NearDrop, rquickshare, OpenDrop and Google's Quick Share for Windows: platforms, protocols, AirDrop, Quick Share, AirPlay.
 
 ## Links
 
