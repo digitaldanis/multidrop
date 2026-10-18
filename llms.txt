@@ -8,6 +8,7 @@
 - Quick Share / Nearby Share: send and receive on Windows and Linux; appears in the share menu of Android and Samsung phones, no app or Google account needed; QR code pairing for Samsung phones.
 - AirDrop: native send and receive with iPhone, iPad and Mac on Linux with a supported Wi-Fi card (MediaTek MT7925; Intel in exclusive mode) via omdrop-owl. On Windows, Apple's AWDL radio is not available, so iPhones send to the PC with the free LocalSend app or by scanning a QR code in the browser.
 - LocalSend: compatible in both directions on Windows and Linux.
+- Web app: https://digitaldanis.github.io/multidrop/web/ is an installable browser edition (PWA) for sending files, text and links browser to browser on the same Wi-Fi, without installing anything; AirDrop, Quick Share, LocalSend and AirPlay need the desktop app.
 - Browser download: any phone downloads files from the PC by scanning a QR code and entering a PIN, no app needed.
 - AirPlay: screen mirroring from Windows and Linux to Apple TV, Mac and AirPlay TVs; PC audio to AirPlay speakers (HomePod, Sonos, Apple TV).
 - Tested with real devices: Quick Share with Android and Samsung Galaxy phones, AirPlay screen mirroring with Apple TVs, AirDrop between Linux and Mac.
