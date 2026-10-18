@@ -7,7 +7,19 @@ name = "multidrop"
 version = "0.2.0"
 description = "Nearby sharing for Linux and Windows: AirDrop, Quick Share, LocalSend, AirPlay"
 requires-python = ">=3.11"
+readme = "README.md"
 license = "GPL-3.0-or-later"
+keywords = ["airdrop", "airdrop-alternative", "quick-share", "nearby-share", "localsend",
+            "airplay", "file-transfer", "file-sharing", "linux", "windows", "iphone", "android"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: X11 Applications :: GTK",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows",
+    "Programming Language :: Python :: 3",
+    "Topic :: Communications :: File Sharing",
+]
 dependencies = [
     "aiohttp>=3.9",
     "cryptography>=41",
@@ -21,6 +33,12 @@ dependencies = [
 test = ["pytest>=8", "pytest-asyncio>=0.23"]
 windows = ["pystray>=0.19", "pillow>=10", "soundcard>=0.4.3; sys_platform == 'win32'",
            "pywebview>=5.0; sys_platform == 'win32'"]
+
+[project.urls]
+Homepage = "https://digitaldanis.github.io/multidrop/"
+Repository = "https://github.com/digitaldanis/multidrop"
+Issues = "https://github.com/digitaldanis/multidrop/issues"
+Changelog = "https://github.com/digitaldanis/multidrop/releases"
 
 [project.scripts]
 multidrop = "multidrop.cli:main"

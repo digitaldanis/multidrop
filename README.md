@@ -1,6 +1,8 @@
 <p align="center"><img src="docs/banner.png" alt="MultiDrop" width="100%"></p>
 
-<h3 align="center">AirDrop, Quick Share, LocalSend and AirPlay – for Linux and Windows.</h3>
+<h1 align="center">MultiDrop – the AirDrop alternative for Linux and Windows</h1>
+
+<h3 align="center">AirDrop, Quick Share, LocalSend and AirPlay in one free, open-source app.</h3>
 
 <p align="center">
   Send files to any phone nearby, and get files from it. No cloud, no cable, no account.
@@ -25,12 +27,27 @@
 
 iPhones speak AirDrop, Android and Samsung phones speak Quick Share, and the
 rest use LocalSend. **MultiDrop speaks all of them**, so your PC finally shows
-up in the share menu of every phone in the room.
+up in the share menu of every phone in the room. It is a free, open-source
+**AirDrop alternative for Linux and Windows** that also replaces Google's
+Quick Share for PC and the LocalSend desktop app, with no cloud and no account.
 
 - 📲 **Every phone** – iPhone, Android, Samsung, and any phone with a browser
 - 🔒 **Stays local** – straight from device to device, nothing goes through a server
 - ✋ **Asks first** – nothing lands on your PC until you accept it
 - 🔊 **More than files** – mirror your screen or play your PC's sound on AirPlay speakers
+
+## Why MultiDrop? AirDrop alternatives compared
+
+| | MultiDrop | Apple AirDrop | Google Quick Share (Windows) | LocalSend | Snapdrop / PairDrop |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Works on **Linux** | ✅ | – | – | ✅ | browser only |
+| Works on **Windows** | ✅ | – | ✅ | ✅ | browser only |
+| Talks to **iPhone** natively (AirDrop) | ✅ Linux | ✅ | – | – | – |
+| Talks to **Android / Samsung** natively (Quick Share) | ✅ | – | ✅ | – | – |
+| Shows up in the phone's **share menu** | ✅ | ✅ | ✅ | needs the app | – |
+| **AirPlay** screen mirroring and audio | ✅ Linux | ✅ | – | – | – |
+| No account, no cloud | ✅ | ✅ | Google account optional | ✅ | server needed |
+| Open source | ✅ GPL-3.0 | – | – | ✅ | ✅ |
 
 ## What works where
 
@@ -128,6 +145,36 @@ same network on one of those channels and moves back afterwards – no router
 changes needed. Details: [docs/INSTALL-ROOT.md](docs/INSTALL-ROOT.md).
 
 ## FAQ
+
+<details>
+<summary><b>Is there an AirDrop for Linux?</b></summary>
+
+Yes. MultiDrop sends and receives files with iPhones, iPads and Macs over the
+real AirDrop protocol on Linux. It needs a supported Wi-Fi card, see
+[AirDrop on Linux](#airdrop-on-linux).
+</details>
+
+<details>
+<summary><b>Is there an AirDrop for Windows?</b></summary>
+
+Not the real one: AirDrop needs Apple's radio link, which Windows can't do.
+MultiDrop for Windows uses Quick Share, LocalSend and a browser download
+(QR code + PIN) instead, which together cover every iPhone and Android phone.
+</details>
+
+<details>
+<summary><b>Is MultiDrop a Quick Share or Nearby Share alternative for PC?</b></summary>
+
+Yes. It speaks Google's Quick Share (formerly Nearby Share) protocol on Linux
+and Windows, so Android and Samsung phones see your PC without any extra app.
+</details>
+
+<details>
+<summary><b>Can I use it instead of LocalSend?</b></summary>
+
+MultiDrop is compatible with the LocalSend protocol, so it talks to the official
+LocalSend apps. On top of that it adds AirDrop and Quick Share.
+</details>
 
 <details>
 <summary><b>How do I send from an iPhone to Windows?</b></summary>
