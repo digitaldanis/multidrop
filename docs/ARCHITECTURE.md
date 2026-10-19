@@ -158,3 +158,15 @@ data/                     icons (SVG, PNG, ICO), systemd user unit
 packaging/windows/        PyInstaller entry point, Inno Setup installer and its test
 tests/                    unit, loopback, interop and CLI tests
 ```
+
+
+### Android
+
+`android/` is a native Java application with an Android Studio/Gradle entry point
+and an SDK-only build script. `TransferEngine` and `LocalHttp` are JVM-testable
+LocalSend/browser components; `TransferService` supplies Android KeyStore TLS,
+MediaStore pending writes, explicit receive consent, and foreground notifications.
+`AudioService` captures approved app playback and feeds the classic RAOP sender.
+The app delegates Quick Share to Android's system sharing provider. It does not
+embed Python, PipeWire, OWL, or doubletake. See `android/README.md` for the precise
+support matrix and platform restrictions.
