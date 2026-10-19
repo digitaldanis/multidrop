@@ -2,6 +2,15 @@
 
 Share files, your screen and audio with devices nearby – Linux and Windows.
 
+### New in 0.2.1
+
+- **Windows: no more empty white window** – when the app window (WebView2)
+  fails to start, MultiDrop closes it and opens in the browser instead; the
+  notification area icon keeps working. When it starts with Windows, nothing
+  opens.
+- **winget** – manifest in `packaging/winget/`; `winget install multidrop`
+  works once it is accepted into the winget catalog.
+
 ### New in 0.2.0
 
 - **Windows installer** – `MultiDrop-Setup.exe` installs just for you, no admin

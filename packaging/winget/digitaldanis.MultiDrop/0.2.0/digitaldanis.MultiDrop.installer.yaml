@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
+PackageIdentifier: digitaldanis.MultiDrop
+PackageVersion: 0.2.0
+InstallerType: inno
+Scope: user
+InstallModes:
+  - interactive
+  - silent
+UpgradeBehavior: install
+ProductCode: '{10B10BCF-89B1-4852-A0E7-0464EA70C45A}_is1'
+ReleaseDate: 2026-10-18
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/digitaldanis/multidrop/releases/download/v0.2.0/MultiDrop-Setup.exe
+    InstallerSha256: FDCB3AD5CDE33CA2A37EC9411249A199F8A5056D2B6461A53D6AA5A97976882D
+ManifestType: installer
+ManifestVersion: 1.6.0

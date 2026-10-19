@@ -274,3 +274,21 @@ def test_network_access_asks_only_once(monkeypatch, make_config):
     access.ask_once()
     access.ask_once()
     assert requests == [["--config", "x.toml"]]
+
+
+def test_webview2_failure_closes_the_empty_window(monkeypatch):
+    """pywebview only logs a failed WebView2 start; MultiDrop must not stay a white window."""
+    import logging
+
+    from multidrop import win_window
+    closed = []
+    handler = win_window._WebView2Failure(lambda: closed.append(True))
+    log = logging.getLogger("pywebview")
+    log.addHandler(handler)
+    try:
+        log.error("something else went wrong")
+        assert not closed
+        log.error("WebView2 initialization failed with exception:\n (0x800700AA): in use")
+        assert closed == [True]
+    finally:
+        log.removeHandler(handler)

@@ -370,7 +370,8 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as e:          # no WebView2 runtime: use the browser
             log.warning("app window unavailable, using the browser: %s", e)
             window = None
-            webbrowser.open(url)
+            if not (args.no_browser and not paths):     # not when starting with Windows
+                webbrowser.open(url)
         if not quitting.is_set():
             # The window ended without "Quit": keep receiving, UI in the browser.
             log.warning("app window ended unexpectedly; MultiDrop keeps running in the tray")

@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import logging
 import os
+import threading
 from collections.abc import Callable
 from pathlib import Path
 
@@ -106,6 +107,19 @@ class DesktopApi:
         return self.screens()
 
 
+class _WebView2Failure(logging.Handler):
+    """pywebview only logs a failed WebView2 start and leaves an empty white
+    window open; this turns that log line into a callback."""
+
+    def __init__(self, on_failure: Callable[[], None]):
+        super().__init__(logging.ERROR)
+        self._on_failure = on_failure
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if record.getMessage().startswith("WebView2 initialization failed"):
+            self._on_failure()
+
+
 class AppWindow:
     def __init__(self, url: str, api: DesktopApi, storage: Path, hidden: bool = False,
                  on_first_hide: Callable[[], None] = lambda: None):
@@ -115,9 +129,17 @@ class AppWindow:
         self._on_first_hide = on_first_hide
         self._hidden_once = False
         self.quitting = False
+        self.failed = False
         self.window = webview.create_window(TITLE, url, js_api=api, width=1040, height=780,
                                             min_size=(420, 520), hidden=hidden)
         self.window.events.closing += self._closing
+        logging.getLogger("pywebview").addHandler(_WebView2Failure(self._webview2_failed))
+
+    def _webview2_failed(self) -> None:
+        log.warning("WebView2 did not start; closing the empty window")
+        self.failed = True
+        # Called on the UI thread, inside the WebView2 event: close from outside it.
+        threading.Thread(target=self.quit, daemon=True).start()
 
     def _closing(self) -> bool:
         if self.quitting:
@@ -144,6 +166,9 @@ class AppWindow:
         self.window.destroy()
 
     def run(self) -> None:
-        """Blocks until quit(); raises when WebView2 is not available."""
+        """Blocks until quit(); raises when WebView2 is not available or fails
+        to start."""
         self._webview.start(gui="edgechromium", private_mode=False,
                             storage_path=str(self._storage))
+        if self.failed:
+            raise RuntimeError("WebView2 failed to start")

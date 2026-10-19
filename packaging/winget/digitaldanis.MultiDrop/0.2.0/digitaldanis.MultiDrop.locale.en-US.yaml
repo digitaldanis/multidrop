@@ -1,0 +1,26 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+PackageIdentifier: digitaldanis.MultiDrop
+PackageVersion: 0.2.0
+PackageLocale: en-US
+Publisher: MultiDrop
+PublisherUrl: https://github.com/digitaldanis
+PublisherSupportUrl: https://github.com/digitaldanis/multidrop/issues
+PackageName: MultiDrop
+PackageUrl: https://github.com/digitaldanis/multidrop
+License: GPL-3.0-or-later
+LicenseUrl: https://github.com/digitaldanis/multidrop/blob/main/LICENSE
+ShortDescription: AirDrop, Quick Share, LocalSend and AirPlay in one app for Windows and Linux
+Description: |-
+  Share files with phones and computers nearby: Quick Share (Android, Samsung),
+  LocalSend (iPhone, Android, PCs) and a browser download with QR code. Play the
+  PC's sound on AirPlay speakers and mirror the screen to Apple TV.
+Moniker: multidrop
+Tags:
+  - airdrop
+  - airplay
+  - file-sharing
+  - localsend
+  - quick-share
+ReleaseNotesUrl: https://github.com/digitaldanis/multidrop/releases/tag/v0.2.0
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
