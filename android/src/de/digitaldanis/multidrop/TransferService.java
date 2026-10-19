@@ -33,6 +33,10 @@ public class TransferService extends Service implements TransferEngine.Host {
   private PowerManager.WakeLock wake;
   private final Handler main = new Handler(Looper.getMainLooper());
   private volatile boolean stopped;
+  // Conscrypt signs TLS handshakes with raw RSA (NoPadding) through the KeyStore;
+  // keys made before that padding was allowed live under the old alias.
+  private static final String TLS_KEY = "multidrop-localsend-tls";
+  private static final String OLD_TLS_KEY = "multidrop-localsend";
 
   public static final class Offer {
     public final String sender;
@@ -114,20 +118,25 @@ public class TransferService extends Service implements TransferEngine.Host {
               multicast.acquire();
               KeyStore ks = KeyStore.getInstance("AndroidKeyStore");
               ks.load(null);
-              if (!ks.containsAlias("multidrop-localsend")) {
+              if (ks.containsAlias(OLD_TLS_KEY)) ks.deleteEntry(OLD_TLS_KEY);
+              if (!ks.containsAlias(TLS_KEY)) {
                 KeyPairGenerator generator =
                     KeyPairGenerator.getInstance(
                         KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
                 generator.initialize(
                     new KeyGenParameterSpec.Builder(
-                            "multidrop-localsend",
+                            TLS_KEY,
                             KeyProperties.PURPOSE_SIGN | KeyProperties.PURPOSE_DECRYPT)
                         .setKeySize(2048)
-                        .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
+                        .setDigests(
+                            KeyProperties.DIGEST_NONE,
+                            KeyProperties.DIGEST_SHA256,
+                            KeyProperties.DIGEST_SHA512)
                         .setSignaturePaddings(
                             KeyProperties.SIGNATURE_PADDING_RSA_PKCS1,
                             KeyProperties.SIGNATURE_PADDING_RSA_PSS)
                         .setEncryptionPaddings(
+                            KeyProperties.ENCRYPTION_PADDING_NONE,
                             KeyProperties.ENCRYPTION_PADDING_RSA_PKCS1,
                             KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
                         .setCertificateSubject(new X500Principal("CN=MultiDrop Android"))
@@ -140,7 +149,7 @@ public class TransferService extends Service implements TransferEngine.Host {
               String fingerprint =
                   TransferEngine.hex(
                       MessageDigest.getInstance("SHA-256")
-                          .digest(ks.getCertificate("multidrop-localsend").getEncoded()));
+                          .digest(ks.getCertificate(TLS_KEY).getEncoded()));
               KeyManagerFactory km =
                   KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
               km.init(ks, null);
