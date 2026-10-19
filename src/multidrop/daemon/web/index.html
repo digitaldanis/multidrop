@@ -21,9 +21,41 @@
 </p>
 
 <main>
+  <section id="network" class="card warn" hidden>
+    <h2>Phones can’t reach this PC yet</h2>
+    <p>The Windows Firewall blocks phones from connecting. MultiDrop can allow devices on your
+      local network – nothing from the internet. Windows asks once for permission: choose <b>Yes</b>.</p>
+    <button type="button" class="primary" id="network-allow">Let phones connect</button>
+    <p class="meta" id="network-status"></p>
+  </section>
+
+  <section id="welcome" class="card welcome" hidden>
+    <h2>Welcome to MultiDrop</h2>
+    <p>Phones and computers nearby can now send files to this PC – and you can send to them.</p>
+    <ul>
+      <li><b>Android or Samsung phone:</b> tap Share → Quick Share and pick <b class="alias"></b>.</li>
+      <li><b>iPhone:</b> use the free LocalSend app. “Download in the browser” below needs no app,
+        but Safari on many iPhones refuses it on a home network.</li>
+      <li><b>From this PC:</b> drag files onto a device below, or right-click files in Explorer → Send to → MultiDrop.</li>
+    </ul>
+    <p class="hint">Windows asks once whether MultiDrop may make changes: choose <b>Yes</b>,
+      so phones on your Wi-Fi can reach this PC.
+      Closing this window keeps MultiDrop running in the notification area, so you can still receive.</p>
+    <button type="button" class="primary" id="welcome-ok">Got it</button>
+  </section>
+
   <section id="offers-section" hidden>
     <h2>Incoming</h2>
     <div id="offers"></div>
+  </section>
+
+  <section id="selection-section" hidden>
+    <div class="row">
+      <h2>Ready to send</h2>
+      <button id="selection-clear" type="button">Clear</button>
+    </div>
+    <p class="hint">Click a device, the QR code or the browser download to send these.</p>
+    <ul id="selection" class="card files"></ul>
   </section>
 
   <section>
@@ -53,9 +85,11 @@
 
   <section>
     <h2>No app needed: download in the browser</h2>
-    <p class="hint">For iPhones and any device without Quick Share/LocalSend: drop files here.
+    <p class="hint">For any device without Quick Share/LocalSend: drop files here.
       A device on the same Wi-Fi scans the code and downloads in its browser (LocalSend download, with PIN).
       Runs until “Stop” or until the time is up.</p>
+    <p class="hint"><b>iPhone:</b> if Safari says “HTTPS-Only” or “network connection lost”,
+      it refuses local addresses; use the free LocalSend app instead.</p>
     <div class="card drop" id="share-card">
       <div class="name">Offer files for download</div>
       <div class="row meta">
@@ -63,12 +97,19 @@
           <option value="5">5 min</option><option value="15" selected>15 min</option>
           <option value="60">60 min</option></select></label>
         <label><input type="checkbox" id="share-nopin" data-stop="1"> without PIN (secret link only)</label>
+        <label title="For browsers that refuse plain http. They warn once about the certificate. iPhones may refuse it on a local network; use LocalSend there."><input type="checkbox" id="share-https" data-stop="1"> secure link (https)</label>
       </div>
     </div>
     <div id="share" class="card" hidden>
+      <p class="notice" id="share-hotspot" hidden>This PC is on an iPhone’s hotspot. That iPhone
+        itself cannot open the link – other phones in the hotspot can. To get the files onto the
+        hotspot iPhone, connect both to a normal Wi-Fi.</p>
       <div id="share-qr"></div>
       <p><a id="share-url" target="_blank" rel="noreferrer"></a></p>
       <p id="share-pin-row">PIN: <span id="share-pin" class="pin"></span></p>
+      <p class="meta" id="share-tls-hint">The browser warns once that the connection is not private:
+        continue anyway, the link is still encrypted. iPhones may refuse it without a way to
+        continue; use the free LocalSend app there.</p>
       <p class="meta" id="share-info"></p>
       <button type="button" id="share-stop" class="danger">Stop</button>
     </div>
@@ -88,6 +129,44 @@
   <section>
     <h2>Transfers</h2>
     <div id="jobs"></div>
+  </section>
+
+  <section id="desktop-mirror" hidden>
+    <h2>Show this PC’s screen on a TV</h2>
+    <p class="hint">AirPlay screen mirroring to an Apple TV, a Mac or an AirPlay TV on your Wi-Fi.
+      The PC’s sound plays on the TV too.</p>
+    <div class="row">
+      <select id="screen" aria-label="TV"></select>
+      <button type="button" class="primary" id="mirror-start">Mirror</button>
+    </div>
+    <ul id="mirror-streams"></ul>
+    <form id="mirror-pin" class="row" hidden>
+      <label for="mirror-code" id="mirror-pin-label"></label>
+      <input id="mirror-code" autocomplete="off" required>
+      <button type="submit" class="primary">Connect</button>
+    </form>
+    <p class="meta" id="mirror-status"></p>
+  </section>
+
+  <section id="desktop-audio" hidden>
+    <h2>Play this PC’s sound on a speaker</h2>
+    <p class="hint">AirPlay speakers and TVs on your Wi-Fi (Apple TV, HomePod, Sonos …).
+      The PC’s own speakers keep playing; the speaker is about 2 seconds behind.</p>
+    <div class="row">
+      <select id="speaker" aria-label="Speaker"></select>
+      <button type="button" class="primary" id="speaker-play">Play</button>
+      <button type="button" id="speaker-stop" hidden>Stop</button>
+      <button type="button" id="speaker-search">Search again</button>
+    </div>
+    <label class="row">Volume <input type="range" id="speaker-volume" min="0" max="100" step="5"></label>
+    <p class="meta" id="speaker-status"></p>
+  </section>
+
+  <section id="desktop-settings" hidden>
+    <h2>Settings</h2>
+    <p><label><input type="checkbox" id="set-autostart"> Start MultiDrop when I sign in to Windows (recommended, so phones can always reach you)</label></p>
+    <p><label><input type="checkbox" id="set-sendto"> Show “MultiDrop” when I right-click files → Send to</label></p>
+    <p><button type="button" id="open-downloads">Open received files</button></p>
   </section>
 
   <section>

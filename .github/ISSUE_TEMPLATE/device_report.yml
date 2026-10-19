@@ -1,0 +1,41 @@
+name: Device report
+description: Tell us which devices work (or don't) with MultiDrop
+labels: [device report]
+body:
+  - type: input
+    id: device
+    attributes:
+      label: Device
+      placeholder: Pixel 8, Android 15
+    validations:
+      required: true
+  - type: dropdown
+    id: protocol
+    attributes:
+      label: Protocol
+      options: [Quick Share, LocalSend, AirDrop, Browser download, AirPlay mirroring, AirPlay audio]
+    validations:
+      required: true
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Direction
+      options: [Send to the device, Receive from the device, Both]
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options: [Works, Works with problems, Doesn't work]
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Your system
+      placeholder: Fedora 41 / Windows 11
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes

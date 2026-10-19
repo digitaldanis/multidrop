@@ -2,11 +2,14 @@
 
 import asyncio
 import json
+import sys
 
 import pytest
 
 from multidrop import airdrop_radio as radio
 from multidrop.core import TransferError
+
+pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="AirDrop radio (omdrop-owl) is Linux only")
 
 
 @pytest.fixture

@@ -205,7 +205,7 @@ class AirDropBackend(Backend):
             else:   # AirDrop has no plain-text type: send it as a .txt file
                 tmp = tempfile.TemporaryDirectory()
                 note = Path(tmp.name) / text_file_name(text)
-                note.write_text(text)
+                note.write_bytes(text.encode())     # as typed, no CRLF on Windows
                 paths = [*paths, note]
         try:
             async with self._wake():

@@ -14,27 +14,113 @@ jobs:
   test-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: AirPlay receiver for the RAOP interop test
+        run: sudo apt-get install -y -qq shairport-sync
+      - run: pip install -e ".[test]" ruff
+      - name: Lint (ruff)
+        run: ruff check src tests tools
+      - run: pytest -q
+
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install -e ".[test]"
       - run: pytest -q
 
-  windows:
+  mirror-windows:
+    # AirPlay screen mirroring engine for the installer: doubletake with
+    # packaging/windows/doubletake/windows-support.patch and a trimmed GStreamer.
     runs-on: windows-latest
+    env:
+      DOUBLETAKE_REV: e18f85d             # tag v0.5.0, as in tools/fetch-doubletake.sh
+      GST_VERSION: "1.28.8"
+      GST_SHA256: e4c41ee6ee9c6c32a45d198463ec08d79bac3bd5fa58adc93d13fe4a08abc9d9
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: doubletake with the Windows patch
+        shell: bash
+        run: |
+          git clone -q https://github.com/omarroth/doubletake.git build/doubletake-src
+          cd build/doubletake-src
+          git -c advice.detachedHead=false checkout -q "$DOUBLETAKE_REV"
+          git apply ../../packaging/windows/doubletake/windows-support.patch
+          CGO_ENABLED=0 go build -trimpath -o ../doubletake/ ./cmd/doubletake ./cmd/doubletake-ctl ./cmd/doubletake-test-receiver
+          cp LICENSE COPYING.GPL ../doubletake/
+      - name: doubletake's Windows-specific tests
+        working-directory: build/doubletake-src
+        run: go test ./internal/daemon/... ./internal/airplay/ -run "TCP|ListenControl|Client|D3D11|Windows|HWAccel|EncoderSelection|RunRejectsSecond"
+      - name: GStreamer runtime (checksum pinned)
+        shell: pwsh
+        run: |
+          $url = "https://gstreamer.freedesktop.org/data/pkg/windows/$env:GST_VERSION/msvc/gstreamer-1.0-msvc-x86_64-$env:GST_VERSION.exe"
+          Invoke-WebRequest $url -OutFile "$env:RUNNER_TEMP\gstreamer-setup.exe"
+          if ((Get-FileHash "$env:RUNNER_TEMP\gstreamer-setup.exe" -Algorithm SHA256).Hash -ne $env:GST_SHA256) { throw "GStreamer checksum mismatch" }
+          $p = Start-Process "$env:RUNNER_TEMP\gstreamer-setup.exe" -Wait -PassThru -ArgumentList `
+            "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART", "/ALLUSERS", "/TYPE=runtime", "/DIR=C:\gst"
+          if ($p.ExitCode) { throw "GStreamer setup failed: $($p.ExitCode)" }
+          $launch = Get-ChildItem C:\gst -Recurse -Filter gst-launch-1.0.exe | Select-Object -First 1
+          if (-not $launch) { throw "gst-launch-1.0.exe not installed" }
+          "GST_ROOT=$($launch.Directory.Parent.FullName)" >> $env:GITHUB_ENV
+      - name: Mirror engine folder (only the plugins doubletake uses)
+        run: |
+          pip install pefile
+          python packaging/windows/make_mirror_pack.py --gstreamer "$env:GST_ROOT" --doubletake build/doubletake --out build/mirror
+      - name: Mirroring end to end (synthetic video, doubletake's test receiver)
+        shell: pwsh
+        env:
+          MULTIDROP_TEST_MIRROR_DIR: build\mirror
+          MULTIDROP_TEST_MIRROR_HWACCEL: none
+          MULTIDROP_TEST_MIRROR_EXPECT_VIDEO: "1"
+        run: |
+          pip install -e ".[test]"
+          Copy-Item build\doubletake\doubletake-test-receiver.exe build\mirror\
+          try { pytest -q tests/test_win_mirror.py } finally { Remove-Item build\mirror\doubletake-test-receiver.exe }
+      - name: Real desktop capture (informational; runners may have no capturable screen)
+        continue-on-error: true
+        shell: pwsh
+        timeout-minutes: 2
+        run: |
+          $env:GST_PLUGIN_SYSTEM_PATH = "$PWD\build\mirror\gstreamer\lib\gstreamer-1.0"
+          & build\mirror\gstreamer\bin\gst-launch-1.0.exe d3d11screencapturesrc num-buffers=30 `! d3d11convert `! "video/x-raw(memory:D3D11Memory),format=NV12" `! d3d11download `! mfh264enc `! h264parse `! fakesink
+          if ($LASTEXITCODE) { throw "desktop capture failed: $LASTEXITCODE" }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mirror-windows
+          path: build/mirror
+
+  windows:
+    needs: [mirror-windows]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - uses: actions/download-artifact@v4
+        with:
+          name: mirror-windows
+          path: build/mirror
       - run: pip install ".[windows]" pyinstaller
       - name: Build MultiDrop.exe
         run: >
           pyinstaller --noconfirm --onefile --windowed --name MultiDrop
           --icon data/icons/multidrop.ico
           --add-data "data/icons/multidrop.png;data/icons"
-          --collect-all multidrop --collect-all zeroconf
+          --collect-all multidrop --collect-all zeroconf --collect-all soundcard --collect-all webview
           --hidden-import pystray._win32
           packaging/windows/launch.py
       - name: Self-test (starts Quick Share + LocalSend, checks the API)
@@ -45,15 +131,29 @@ jobs:
           if (-not $p.WaitForExit(90000)) { $p.Kill(); $code = "timeout" } else { $code = $p.ExitCode }
           Get-Content "$env:LOCALAPPDATA\multidrop\multidrop.log" -ErrorAction SilentlyContinue
           if ($code -ne 0) { throw "self-test failed: $code" }
-      - uses: actions/upload-artifact@v4
+      - name: Build MultiDrop-Setup.exe (Inno Setup, per-user install)
+        shell: pwsh
+        run: |
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress }
+          $version = (Select-String -Path pyproject.toml -Pattern '^version = "(.+)"').Matches[0].Groups[1].Value
+          & $iscc /Q "/DAppVersion=$version" packaging\windows\multidrop.iss
+          if ($LASTEXITCODE) { throw "iscc failed: $LASTEXITCODE" }
+      - name: Install, check and uninstall
+        shell: pwsh
+        timeout-minutes: 5
+        run: packaging/windows/test-installer.ps1
+      - uses: actions/upload-artifact@v7
         with:
           name: MultiDrop-windows
-          path: dist/MultiDrop.exe
+          path: |
+            dist/MultiDrop.exe
+            dist/MultiDrop-Setup.exe
 
   deb:
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build multidrop_*_all.deb
         run: packaging/deb/build-deb.sh dist
       - name: Install it and check the programs start
@@ -63,26 +163,26 @@ jobs:
           multidrop --version
           multidropd --help >/dev/null
           python3 -I -c "import sys; sys.path[:0]=['/usr/lib/multidrop','/usr/lib/multidrop/vendor']; import multidrop.daemon, aiohttp, google.protobuf; print('aiohttp', aiohttp.__version__)"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: MultiDrop-deb
           path: dist/*.deb
 
   release:
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: [test-linux, windows, deb]
+    needs: [test-linux, test-windows, windows, deb]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install build && python -m build
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: MultiDrop-deb
           path: dist
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: MultiDrop-windows
           path: dist
@@ -98,19 +198,74 @@ jobs:
           --title "MultiDrop $GITHUB_REF_NAME"
           --notes-file packaging/RELEASE_NOTES.md
 
+  pages:
+    # Website on GitHub Pages (gh-pages branch, next to the APT repository),
+    # built from site/strings.toml by tools/build_site.py. The branch is
+    # checked out to gh-pages/, as site/ holds the sources.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [test-linux]
+    runs-on: ubuntu-latest
+    concurrency: gh-pages
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - run: python tools/build_site.py build/site
+      - name: Publish
+        run: |
+          cp -r build/site/. gh-pages/
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || { git commit -m "Website: ${GITHUB_SHA::7}" && git push; }
+
+  web:
+    # Browser edition (pages/) on GitHub Pages under web/, next to the website and
+    # the APT repository. Only the page files and wireweave's src/ are copied.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [pages]
+    runs-on: ubuntu-latest
+    concurrency: gh-pages
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - name: Publish
+        run: |
+          rm -rf gh-pages/web && mkdir -p gh-pages/web/vendor/wireweave
+          cp pages/index.html pages/*.js pages/style.css pages/manifest.webmanifest gh-pages/web/
+          cp -r pages/icons gh-pages/web/
+          cp -r pages/vendor/wireweave/src gh-pages/web/vendor/wireweave/
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || { git commit -m "Web edition: ${GITHUB_SHA::7}" && git push; }
+
   apt-repo:
     # Signed APT repository on GitHub Pages (gh-pages branch):
     #   sudo apt install multidrop   after adding it once, see README.
     if: startsWith(github.ref, 'refs/tags/v')
     needs: [release]
     runs-on: ubuntu-24.04
+    concurrency: gh-pages
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           ref: gh-pages
-          path: site
-      - uses: actions/download-artifact@v4
+          path: gh-pages
+      - uses: actions/download-artifact@v8
         with:
           name: MultiDrop-deb
           path: dist
@@ -121,10 +276,10 @@ jobs:
         run: |
           export GNUPGHOME=$(mktemp -d)
           echo "$APT_GPG_KEY" | gpg --batch --import
-          packaging/deb/update-apt-repo.sh site dist/*.deb
+          packaging/deb/update-apt-repo.sh gh-pages dist/*.deb
       - name: Publish
         run: |
-          cd site
+          cd gh-pages
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A

@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Send files, text and links between devices on the same Wi-Fi, browser to browser. No account, the receiver accepts every transfer.">
+<meta name="theme-color" content="#0b1020">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MultiDrop">
+<title>MultiDrop Web</title>
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{
+  "imports": {
+    "nostr-tools": "https://esm.sh/nostr-tools@2.25.2",
+    "xstate": "https://esm.sh/xstate@5.33.3",
+    "qrcode-generator": "https://esm.sh/qrcode-generator@1.4.4"
+  }
+}
+</script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><img src="icons/icon.svg" alt="" width="30" height="30"><span>MultiDrop</span><em>Web</em></a>
+  <div id="status">connecting …</div>
+  <button id="install" type="button" class="primary small" hidden>Install app</button>
+</header>
+
+<main>
+  <section id="offers-section" hidden>
+    <h2>Incoming</h2>
+    <div id="offers"></div>
+  </section>
+
+  <section id="nearby" class="radar">
+    <div id="devices" class="stage"></div>
+    <div class="radar-empty">
+      <strong>Looking for devices …</strong>
+      <span>Open this page on another phone or computer on the same Wi-Fi.</span>
+    </div>
+    <label class="alias-edit">You appear as
+      <input id="alias-input" maxlength="40" autocomplete="off" aria-label="Your device name">
+    </label>
+    <p class="hint" id="nearby-hint"></p>
+    <p class="hint center">Drop files or folders on a device, or tap it to choose. The other side accepts every transfer.</p>
+  </section>
+
+  <div class="panels">
+    <section class="panel">
+      <h2>Send text or a link</h2>
+      <form id="text-form">
+        <textarea id="text" rows="3" placeholder="Text or https://…" required></textarea>
+        <div class="row">
+          <select id="text-target"></select>
+          <button type="submit" class="primary">Send</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Transfers</h2>
+      <div id="jobs"></div>
+    </section>
+
+    <section id="folder-section" class="panel">
+      <h2>Receive folder</h2>
+      <p class="hint">Accepted files are written here. Files from devices you remembered are saved without asking.</p>
+      <div class="row">
+        <span id="folder-state" class="meta">Not set</span>
+        <button id="folder-choose" type="button">Choose folder</button>
+        <button id="folder-allow" type="button" hidden>Allow access</button>
+        <button id="folder-forget" type="button" class="danger" hidden>Forget</button>
+      </div>
+      <p id="folder-note" class="hint" hidden>Receiving needs Chrome, Edge or Opera, which can write into a chosen folder. Other browsers can still send.</p>
+    </section>
+
+    <details id="pair-section" class="panel">
+      <summary><h2>Remember a device</h2><span class="meta">optional</span></summary>
+      <p class="hint">Only needed to reach your own devices on other networks, for example your phone on mobile data. Show a code here and enter it there, or scan the QR code.</p>
+      <div id="pair-requests"></div>
+      <div class="row">
+        <button id="pair-show" type="button">Show a pairing code</button>
+        <form id="pair-join" class="row">
+          <input id="pair-code" inputmode="numeric" pattern="[0-9 ]{6,7}" placeholder="6-digit code" autocomplete="off" aria-label="Pairing code" required>
+          <button type="submit">Pair</button>
+        </form>
+      </div>
+      <div id="pair-host" class="card" hidden>
+        <div class="name">Enter this code on the other device</div>
+        <div class="pin" id="pair-code-show"></div>
+        <div id="pair-qr"></div>
+        <p><a id="pair-url" target="_blank" rel="noreferrer"></a></p>
+        <p class="meta">Expires in 5 minutes. Or scan the code with the other device’s camera.</p>
+        <button id="pair-cancel" type="button">Cancel</button>
+      </div>
+      <p id="pair-state" class="meta"></p>
+      <button id="leave-zone" type="button" class="danger" hidden>Forget remembered devices</button>
+    </details>
+
+    <details class="panel wide">
+      <summary><h2>History</h2></summary>
+      <ol id="log" reversed></ol>
+    </details>
+  </div>
+
+  <footer>
+    <p>Browser to browser only. Devices find each other through public nostr relays; files and device names go directly between the browsers.
+      For AirDrop, Quick Share, LocalSend and AirPlay, get the <a href="https://digitaldanis.github.io/multidrop/">MultiDrop app</a> for Windows and Linux.</p>
+    <p><a href="https://github.com/digitaldanis/multidrop">GitHub</a> · GPL-3.0</p>
+  </footer>
+</main>
+
+<input type="file" id="pick-files" multiple hidden>
+</body>
+</html>

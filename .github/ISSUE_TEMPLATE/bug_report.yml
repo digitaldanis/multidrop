@@ -1,0 +1,33 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: input
+    id: system
+    attributes:
+      label: Your system
+      description: Linux distribution or Windows version, and how you installed MultiDrop
+      placeholder: Ubuntu 24.04, apt / Windows 11, MultiDrop-Setup.exe
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Other device
+      description: Model, OS version and app
+      placeholder: Galaxy S24, Android 15, Quick Share
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What you did, what you expected and what happened instead
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log
+      description: "`multidrop -v …` on Linux, `%LOCALAPPDATA%\\multidrop\\multidrop.log` on Windows"
+      render: text

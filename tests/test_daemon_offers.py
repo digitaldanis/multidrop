@@ -7,6 +7,7 @@ import os
 
 import pytest
 
+from conftest import WINDOWS, api_session
 from multidrop.backends.localsend import LocalSendBackend
 from multidrop.backends.quickshare import outbound
 from multidrop.cli import _choose
@@ -133,10 +134,8 @@ async def test_history_survives_restart(daemon_cfg, tmp_path):
         await asyncio.wait_for(asyncio.shield(started), 10)
         return stop, task
 
-    import aiohttp
-    from multidrop.daemon import socket_path
     stop, task = await start()
-    sess = aiohttp.ClientSession(connector=aiohttp.UnixConnector(str(socket_path(daemon_cfg))))
+    sess = api_session(daemon_cfg)
     try:
         port = (await get(sess, "/api/status"))[1]["protocols"]["quickshare"]["port"]
         sending = asyncio.ensure_future(outbound.send(
@@ -149,7 +148,7 @@ async def test_history_survives_restart(daemon_cfg, tmp_path):
         g = tmp_path / "g.txt"
         g.write_text("x")
         _, share = await post(sess, "/api/share", {"paths": [str(g)], "no_pin": True})
-        async with sess.delete("http://localhost/api/share"):
+        async with sess.delete("/api/share"):
             pass
         before = (await get(sess, "/api/history"))[1]
     finally:
@@ -158,7 +157,8 @@ async def test_history_survives_restart(daemon_cfg, tmp_path):
         await asyncio.wait_for(task, 10)
 
     path = daemon_cfg.daemon.history_path()
-    assert oct(path.stat().st_mode & 0o777) == "0o600"
+    if not WINDOWS:
+        assert oct(path.stat().st_mode & 0o777) == "0o600"
     stored = [json.loads(line) for line in path.read_text().splitlines()]
     names = [e["event"] for e in stored]
     assert "message" in names and "offer_accepted" in names and "share_stopped" in names
@@ -166,7 +166,7 @@ async def test_history_survives_restart(daemon_cfg, tmp_path):
     assert share["url"] not in path.read_text()          # secret link not kept
 
     stop, task = await start()
-    sess = aiohttp.ClientSession(connector=aiohttp.UnixConnector(str(socket_path(daemon_cfg))))
+    sess = api_session(daemon_cfg)
     try:
         after = (await get(sess, "/api/history"))[1]
     finally:

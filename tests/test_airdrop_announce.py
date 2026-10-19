@@ -7,9 +7,13 @@ import socket
 import struct
 import time
 
+import pytest
 from zeroconf import DNSIncoming, const
 
-from multidrop.backends.airdrop import AirDropBackend, ble
+# The BLE wake-up talks to BlueZ over D-Bus (Linux only).
+pytest.importorskip("dbus_fast")
+
+from multidrop.backends.airdrop import AirDropBackend, ble  # noqa: E402
 from multidrop.backends.airdrop.mdns import FLAGS, Publisher
 
 

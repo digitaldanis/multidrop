@@ -9,6 +9,7 @@
           --line: #34343a; --accent: #5a9cff; --ok: #4cc26a; --bad: #ff6b6b; }
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }   /* also for .row and other display rules */
 body { margin: 0; background: var(--bg); color: var(--fg); }
 header { display: flex; align-items: baseline; gap: 1rem; padding: 1rem 1.5rem;
          border-bottom: 1px solid var(--line); }
@@ -41,7 +42,9 @@ input, select, textarea { font: inherit; padding: .35rem .5rem; border-radius: 6
          border: 1px solid var(--line); background: var(--card); color: var(--fg); }
 textarea { width: 100%; resize: vertical; }
 #manual input { flex: 1; min-width: 14rem; }
-#qr svg { display: block; margin: .75rem auto 0; background: #fff; border-radius: 6px; }
+#qr svg, #share-qr svg { display: block; margin: .75rem auto 0; padding: 12px;
+                         background: #fff; border-radius: 6px; }
+#share-qr svg { margin: 0; }
 .job { display: flex; gap: .75rem; align-items: center; margin-bottom: .4rem; }
 .job .what { flex: 1; overflow-wrap: anywhere; }
 .job.done .state { color: var(--ok); }
@@ -58,3 +61,9 @@ summary { cursor: pointer; color: var(--muted); }
 .offer ul.selectable label { cursor: pointer; overflow-wrap: anywhere; }
 .pin-input { width: 7rem; font-variant-numeric: tabular-nums; }
 #log li.old { opacity: .65; }
+#selection { margin: .4rem 0; padding: .6rem 1rem .6rem 2rem; max-height: 10rem; overflow: auto; }
+.welcome { border-left: 4px solid var(--accent); }
+.warn { border-left: 4px solid var(--bad); }
+.notice { border-left: 4px solid var(--bad); padding-left: .75rem; margin-top: 0; }
+.welcome ul { padding-left: 1.2rem; }
+#speaker { min-width: 14rem; flex: 1; }

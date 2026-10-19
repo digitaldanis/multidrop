@@ -1,0 +1,1504 @@
+MultiDrop's Windows support for doubletake (https://github.com/omarroth/doubletake,
+LGPL-3.0), applied by CI on top of the release tools/fetch-doubletake.sh pins
+(v0.5.0, e18f85d): d3d11 screen capture, Windows hardware encoders, WASAPI
+loopback audio, job-object child lifetime and a loopback TCP control endpoint
+with a token, because Python has no AF_UNIX on Windows.
+
+    git -C doubletake apply packaging/windows/doubletake/windows-support.patch
+
+diff --git a/cmd/doubletake-ctl/main.go b/cmd/doubletake-ctl/main.go
+index f60f236..9fbfe4f 100644
+--- a/cmd/doubletake-ctl/main.go
++++ b/cmd/doubletake-ctl/main.go
+@@ -13,7 +13,8 @@ import (
+ func main() {
+ 	fs := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+ 	fs.SetOutput(os.Stderr)
+-	socketPath := fs.String("socket", daemon.DefaultSocketPath(), "daemon socket path")
++	socketPath := fs.String("socket", daemon.DefaultSocketPath(), "daemon socket path, or tcp:HOST:PORT")
++	controlFile := fs.String("control-file", daemon.DefaultControlFile(), "address and token of a TCP daemon")
+ 	fs.Usage = usage
+ 
+ 	if err := fs.Parse(os.Args[1:]); err != nil {
+@@ -27,6 +28,7 @@ func main() {
+ 	}
+ 
+ 	client := daemonclient.New(*socketPath)
++	client.ControlFile = *controlFile
+ 	cmd := args[0]
+ 
+ 	var resp *daemon.Response
+@@ -94,5 +96,5 @@ func main() {
+ }
+ 
+ func usage() {
+-	fmt.Fprintf(os.Stderr, "Usage: doubletake-ctl [-socket path] <command> [args]\n\nCommands:\n  status                              Show daemon state and all active streams\n  discover                            Discover AirPlay devices on the network\n  devices                             List cached discovered devices\n  connect [target] [PIN-or-password]  Start mirroring (to target IP, or first free device)\n  pin <PIN-or-password>               Submit pairing credentials for a waiting device\n  disconnect [target]                 Stop mirroring (all streams, or only the given IP)\n  mute [target]                       Mute mirrored audio (all streams, or only the given IP)\n  unmute [target]                     Unmute mirrored audio (all streams, or only the given IP)\n\nFlags:\n  -socket path                        Override daemon socket path (default: %s)\n", daemon.DefaultSocketPath())
++	fmt.Fprintf(os.Stderr, "Usage: doubletake-ctl [-socket path] <command> [args]\n\nCommands:\n  status                              Show daemon state and all active streams\n  discover                            Discover AirPlay devices on the network\n  devices                             List cached discovered devices\n  connect [target] [PIN-or-password]  Start mirroring (to target IP, or first free device)\n  pin <PIN-or-password>               Submit pairing credentials for a waiting device\n  disconnect [target]                 Stop mirroring (all streams, or only the given IP)\n  mute [target]                       Mute mirrored audio (all streams, or only the given IP)\n  unmute [target]                     Unmute mirrored audio (all streams, or only the given IP)\n\nFlags:\n  -socket path                        Override daemon socket path (default: %s)\n  -control-file path                  Address and token of a TCP daemon (default: %s)\n", daemon.DefaultSocketPath(), daemon.DefaultControlFile())
+ }
+diff --git a/cmd/doubletake/main.go b/cmd/doubletake/main.go
+index 20053db..abee07e 100644
+--- a/cmd/doubletake/main.go
++++ b/cmd/doubletake/main.go
+@@ -67,7 +67,7 @@ func main() {
+ 	fps := flag.Int("fps", 30, "Frames per second")
+ 	bitrate := flag.Int("bitrate", 0, "Video bitrate in kbps (0 = auto, default tunes for resolution/FPS)")
+ 	targetLatencyMs := flag.Int("target-latency-ms", 0, "Joint audio/video playout latency override in milliseconds (0 = automatic connection profile)")
+-	hwaccel := flag.String("hwaccel", "auto", "Encoder: auto, nvenc, vaapi, openh264, none (x264/x265)")
++	hwaccel := flag.String("hwaccel", "auto", "Encoder: auto, nvenc, vaapi, qsv, amf, mf (Windows), openh264, none (x264/x265)")
+ 	videoCodec := flag.String("video-codec", "auto", "Screen codec: auto, h264, or hevc (auto uses H.264 for receiver compatibility)")
+ 	testMode := flag.Bool("test", false, "Use synthetic video (videotestsrc) instead of screen capture for debugging")
+ 	noEncrypt := flag.Bool("no-encrypt", false, "Disable RTSP header encryption (debugging only; video frames are always encrypted)")
+@@ -76,7 +76,8 @@ func main() {
+ 	portRange := flag.String("port-range", "", "Local UDP port range for receiver timing/audio (e.g. \"60000-60010\"); empty = OS ephemeral. Needs at least 3 ports.")
+ 	debug := flag.Bool("debug", false, "Enable verbose debug logging")
+ 	daemonize := flag.Bool("daemonize", false, "Run as background daemon with Unix socket control interface")
+-	socketPath := flag.String("socket", daemon.DefaultSocketPath(), "Unix socket path for daemon control interface")
++	socketPath := flag.String("socket", daemon.DefaultSocketPath(), "Daemon control interface: Unix socket path, or tcp:HOST:PORT on loopback")
++	controlFile := flag.String("control-file", daemon.DefaultControlFile(), "With a tcp: control interface, where the daemon publishes its address and token")
+ 	x11WindowID := flag.String("x11-window-id", "", "X11 window id to capture, decimal or 0xhex")
+ 	x11WindowName := flag.String("x11-window-name", "", "X11 window name to capture; prefer -x11-window-id")
+ 	noCursor := flag.Bool("no-cursor", false, "Don't show the mouse cursor in the captured video")
+@@ -105,6 +106,7 @@ func main() {
+ 	if *daemonize {
+ 		runDaemon(daemon.Config{
+ 			SocketPath:  *socketPath,
++			ControlFile: *controlFile,
+ 			CredFile:    *credFile,
+ 			CredBackend: *credBackend,
+ 			FPS:         *fps,
+diff --git a/go.mod b/go.mod
+index a8d0354..b2e28cd 100644
+--- a/go.mod
++++ b/go.mod
+@@ -8,6 +8,7 @@ require (
+ 	github.com/grandcat/zeroconf v1.0.0
+ 	github.com/zalando/go-keyring v0.2.8
+ 	golang.org/x/crypto v0.31.0
++	golang.org/x/sys v0.28.0
+ 	howett.net/plist v1.0.1
+ )
+ 
+@@ -20,6 +21,5 @@ require (
+ 	golang.org/x/mod v0.22.0 // indirect
+ 	golang.org/x/net v0.33.0 // indirect
+ 	golang.org/x/sync v0.10.0 // indirect
+-	golang.org/x/sys v0.28.0 // indirect
+ 	golang.org/x/tools v0.28.0 // indirect
+ )
+diff --git a/internal/airplay/audio.go b/internal/airplay/audio.go
+index ba4b175..62ca90b 100644
+--- a/internal/airplay/audio.go
++++ b/internal/airplay/audio.go
+@@ -13,6 +13,7 @@ import (
+ 	"math"
+ 	"net"
+ 	"os/exec"
++	"runtime"
+ 	"strings"
+ 	"sync"
+ 	"time"
+@@ -257,9 +258,17 @@ func StartAudioCapture(ctx context.Context, testTone bool, codec AudioCodec) (*A
+ 		srcArgs = []string{"audiotestsrc", "wave=sine", "freq=440", "is-live=true",
+ 			fmt.Sprintf("samplesperbuffer=%d", codecSPF)}
+ 		dbg("[AUDIO] using test tone (440 Hz sine wave, live, spf=%d)", codecSPF)
++	} else if runtime.GOOS == "windows" {
++		var source string
++		srcArgs, source = windowsLoopbackSourceArgs(hasGstElement)
++		if srcArgs == nil {
++			cancel()
++			return nil, fmt.Errorf("no audio source available (need GStreamer wasapi2src or wasapisrc)")
++		}
++		dbg("[AUDIO] using %s loopback of the default output", source)
+ 	} else {
+-		hasPipeWireSource := exec.Command("gst-inspect-1.0", "pipewiresrc").Run() == nil
+-		hasPulseSource := exec.Command("gst-inspect-1.0", "pulsesrc").Run() == nil
++		hasPipeWireSource := hasGstElement("pipewiresrc")
++		hasPulseSource := hasGstElement("pulsesrc")
+ 		monitor := ""
+ 		if hasPulseSource {
+ 			monitor = detectPulseMonitor()
+@@ -305,7 +314,7 @@ func StartAudioCapture(ctx context.Context, testTone bool, codec AudioCodec) (*A
+ 	gstArgs := audioCapturePipelineArgs(srcArgs, codec, timestamped)
+ 	dbg("[AUDIO] PCM capture pipeline: gst-launch-1.0 %s", strings.Join(gstArgs, " "))
+ 
+-	gstCmd := exec.CommandContext(captureCtx, "gst-launch-1.0", gstArgs...)
++	gstCmd := gstCommand(captureCtx, "gst-launch-1.0", gstArgs...)
+ 	gstStdout, err := gstCmd.StdoutPipe()
+ 	if err != nil {
+ 		if ac.eld != nil {
+@@ -644,6 +653,19 @@ func (w *bitWriter) flush() int {
+ 	return w.pos
+ }
+ 
++// windowsLoopbackSourceArgs records what the default output device plays.
++// wasapi2src keeps delivering silence while nothing plays (WASAPI loopback
++// alone stops), which the sender needs for a continuous RTP clock.
++func windowsLoopbackSourceArgs(hasElement func(string) bool) ([]string, string) {
++	if hasElement("wasapi2src") {
++		return []string{"wasapi2src", "loopback=true", "low-latency=true"}, "wasapi2src"
++	}
++	if hasElement("wasapisrc") {
++		return []string{"wasapisrc", "loopback=true", "low-latency=true"}, "wasapisrc"
++	}
++	return nil, ""
++}
++
+ // detectPulseMonitor finds the default PulseAudio sink's monitor source name.
+ func detectPulseMonitor() string {
+ 	out, err := exec.Command("pactl", "get-default-sink").Output()
+diff --git a/internal/airplay/capture.go b/internal/airplay/capture.go
+index 13bc64d..40cd872 100644
+--- a/internal/airplay/capture.go
++++ b/internal/airplay/capture.go
+@@ -19,7 +19,6 @@ import (
+ 	"strconv"
+ 	"strings"
+ 	"sync"
+-	"syscall"
+ 	"time"
+ 
+ 	"github.com/godbus/dbus/v5"
+@@ -29,7 +28,7 @@ import (
+ type CaptureConfig struct {
+ 	FPS        int
+ 	Bitrate    int        // Video bitrate in kbps (0 = auto)
+-	HWAccel    string     // "auto", "nvenc", "vaapi", "openh264", or "none"
++	HWAccel    string     // "auto", "nvenc", "vaapi", "qsv", "amf", "mf", "openh264", or "none"
+ 	VideoCodec VideoCodec // empty/h264, auto (resolved before Start), or hevc
+ 
+ 	// MaxWidth/MaxHeight select the encoded canvas advertised by the receiver.
+@@ -51,10 +50,10 @@ type CaptureConfig struct {
+ // zero-value CaptureConfig useful and is treated as auto.
+ func ValidateHWAccel(method string) error {
+ 	switch method {
+-	case "", "auto", "nvenc", "vaapi", "openh264", "none":
++	case "", "auto", "nvenc", "vaapi", "qsv", "amf", "mf", "openh264", "none":
+ 		return nil
+ 	default:
+-		return fmt.Errorf("unknown encoder %q (want auto, nvenc, vaapi, openh264, or none)", method)
++		return fmt.Errorf("unknown encoder %q (want auto, nvenc, vaapi, qsv, amf, mf, openh264, or none)", method)
+ 	}
+ }
+ 
+@@ -98,6 +97,7 @@ const (
+ 	capturePreparationX11 capturePreparationKind = iota
+ 	capturePreparationWayland
+ 	capturePreparationTest
++	capturePreparationWindows
+ )
+ 
+ // CapturePreparation performs the potentially interactive part of screen
+@@ -192,7 +192,7 @@ func probeX11CaptureSource(ctx context.Context, display string, cfg CaptureConfi
+ 	}
+ 	args := append([]string{"--quiet"}, source...)
+ 	args = appendGstStage(args, gstStage{"fakesink", "sync=false", "async=false"})
+-	cmd := exec.CommandContext(probeCtx, "gst-launch-1.0", args...)
++	cmd := gstCommand(probeCtx, "gst-launch-1.0", args...)
+ 	cmd.Stdout = io.Discard
+ 	var stderr bytes.Buffer
+ 	cmd.Stderr = &stderr
+@@ -224,7 +224,9 @@ func PrepareCapture(ctx context.Context, cfg CaptureConfig) (*CapturePreparation
+ 		return nil, err
+ 	}
+ 	kind := capturePreparationX11
+-	if (cfg.X11WindowID != 0 || cfg.X11WindowName != "") && os.Getenv("DISPLAY") != "" {
++	if runtime.GOOS == "windows" {
++		kind = capturePreparationWindows
++	} else if (cfg.X11WindowID != 0 || cfg.X11WindowName != "") && os.Getenv("DISPLAY") != "" {
+ 		kind = capturePreparationX11
+ 	} else if os.Getenv("WAYLAND_DISPLAY") != "" {
+ 		kind = capturePreparationWayland
+@@ -262,8 +264,14 @@ func PrepareCapture(ctx context.Context, cfg CaptureConfig) (*CapturePreparation
+ 	if !preparation.timestampedOutput {
+ 		log.Printf("[CAPTURE] warning: GStreamer RTP/ONVIF timestamp elements are unavailable; video will use output-time timestamps")
+ 	}
++	if kind == capturePreparationWindows {
++		if err := checkWindowsCaptureElements(hasGstElement); err != nil {
++			return nil, err
++		}
++		return preparation, nil
++	}
+ 	if kind == capturePreparationX11 {
+-		if err := exec.Command("gst-inspect-1.0", "ximagesrc").Run(); err != nil {
++		if !hasGstElement("ximagesrc") {
+ 			return nil, fmt.Errorf("GStreamer 'ximagesrc' plugin not found; install gst-plugins-good")
+ 		}
+ 		if err := probeX11CaptureSource(ctx, os.Getenv("DISPLAY"), cfg); err != nil {
+@@ -272,7 +280,7 @@ func PrepareCapture(ctx context.Context, cfg CaptureConfig) (*CapturePreparation
+ 		return preparation, nil
+ 	}
+ 
+-	if err := exec.Command("gst-inspect-1.0", "pipewiresrc").Run(); err != nil {
++	if !hasGstElement("pipewiresrc") {
+ 		return nil, fmt.Errorf("GStreamer 'pipewiresrc' plugin not found; install gst-pipewire")
+ 	}
+ 	if err := probeWaylandDisplay(ctx, os.Getenv("WAYLAND_DISPLAY")); err != nil {
+@@ -451,6 +459,8 @@ func (p *CapturePreparation) startWithContextAndCodec(lifetime context.Context,
+ 		return startPreparedWaylandCapture(startupCtx, captureCtx, cfg, encoder, nodeID, pwFd, portal, streamSize, timestampedOutput)
+ 	case capturePreparationX11:
+ 		return startPreparedX11Capture(startupCtx, captureCtx, cfg, encoder, timestampedOutput)
++	case capturePreparationWindows:
++		return startPreparedWindowsCapture(startupCtx, captureCtx, cfg, encoder, timestampedOutput)
+ 	case capturePreparationTest:
+ 		return startPreparedTestCapture(captureCtx, cfg, encoder, timestampedOutput)
+ 	default:
+@@ -513,10 +523,6 @@ func (p *CapturePreparation) Close() {
+ 	}
+ }
+ 
+-func hasGstElement(name string) bool {
+-	return exec.Command("gst-inspect-1.0", name).Run() == nil
+-}
+-
+ func supportsTimestampedVideoOutput(codec VideoCodec) bool {
+ 	return supportsTimestampedVideoOutputWithProbe(codec, hasGstElement)
+ }
+@@ -770,7 +776,8 @@ func automaticHEVCAvailable(hwaccel string) bool {
+ // startGStreamerCommand starts a capture child whose lifetime cannot outlive
+ // doubletake. Linux delivers Pdeathsig when the creating OS thread exits, not
+ // strictly when the whole process exits, so the supervising goroutine keeps
+-// that thread locked until Wait completes.
++// that thread locked until Wait completes. Windows uses a kill-on-close job
++// object instead (proc_windows.go).
+ func startGStreamerCommand(cmd *exec.Cmd) (<-chan error, error) {
+ 	started := make(chan error, 1)
+ 	waitResult := make(chan error, 1)
+@@ -779,13 +786,14 @@ func startGStreamerCommand(cmd *exec.Cmd) (<-chan error, error) {
+ 		runtime.LockOSThread()
+ 		defer runtime.UnlockOSThread()
+ 
+-		cmd.SysProcAttr = &syscall.SysProcAttr{Pdeathsig: syscall.SIGKILL}
++		bindChildLifetime(cmd)
+ 		err := cmd.Start()
+ 		started <- err
+ 		if err != nil {
+ 			close(waitResult)
+ 			return
+ 		}
++		afterChildStart(cmd)
+ 		waitResult <- cmd.Wait()
+ 		close(waitResult)
+ 	}()
+@@ -1324,7 +1332,7 @@ func startWaylandCaptureAttempt(ctx context.Context, cfg CaptureConfig, plan way
+ 		pwFdNum, nodeID, fps, plan, cfg.MaxWidth, cfg.MaxHeight, timestampedOutput)
+ 
+ 	dbg("[CAPTURE] gst-launch-1.0 (wayland) %s", strings.Join(gstArgs, " "))
+-	cmd := exec.CommandContext(captureCtx, "gst-launch-1.0", gstArgs...)
++	cmd := gstCommand(captureCtx, "gst-launch-1.0", gstArgs...)
+ 	cmd.ExtraFiles = []*os.File{pwFd}
+ 
+ 	stdout, err := cmd.StdoutPipe()
+@@ -1724,7 +1732,14 @@ func startPreparedX11Capture(startupCtx, lifetimeCtx context.Context, cfg Captur
+ 	gstArgs := buildGstVideoPipeline(ximageSrcArgs, beforeConvert, nil, encoder, cfg.MaxWidth, cfg.MaxHeight, timestampedOutput)
+ 
+ 	dbg("[CAPTURE] gst-launch-1.0 (x11) %s", strings.Join(gstArgs, " "))
+-	cmd := exec.CommandContext(captureCtx, "gst-launch-1.0", gstArgs...)
++	return launchGstVideoCapture(startupCtx, captureCtx, cancel, gstArgs, encoder, fps, timestampedOutput,
++		fmt.Sprintf("X11 capture on DISPLAY=%q", display))
++}
++
++// launchGstVideoCapture runs a complete capture pipeline and waits until it
++// delivers its first access unit. cancel ends captureCtx; the capture owns it.
++func launchGstVideoCapture(startupCtx, captureCtx context.Context, cancel context.CancelFunc, gstArgs []string, encoder encoderResult, fps int, timestampedOutput bool, what string) (*ScreenCapture, error) {
++	cmd := gstCommand(captureCtx, "gst-launch-1.0", gstArgs...)
+ 
+ 	stdout, err := cmd.StdoutPipe()
+ 	if err != nil {
+@@ -1769,7 +1784,7 @@ func startPreparedX11Capture(startupCtx, lifetimeCtx context.Context, cfg Captur
+ 	cancelProbe()
+ 	if err != nil {
+ 		capture.Stop()
+-		result := fmt.Errorf("X11 capture on DISPLAY=%q failed startup validation: %w", display, err)
++		result := fmt.Errorf("%s failed startup validation: %w", what, err)
+ 		if stderr := capture.stderrText(); stderr != "" {
+ 			result = fmt.Errorf("%w; GStreamer stderr: %s", result, stderr)
+ 		}
+@@ -2029,6 +2044,45 @@ func selectGstEncoderWithProbe(cfg CaptureConfig, hasElement func(string) bool,
+ 				"rate-control=cbr",
+ 			}},
+ 		},
++		// Windows hardware encoders. They take system-memory NV12 like the
++		// Linux ones; capture_d3d11.go converts to NV12 on the GPU.
++		{
++			method:  "qsv",
++			element: "qsvh264enc",
++			label:   "Intel Quick Sync hardware encoding (qsvh264enc)",
++			result: encoderResult{rawFormat: "NV12", codec: VideoCodecH264, parts: []string{
++				"qsvh264enc",
++				fmt.Sprintf("bitrate=%d", bitrate),
++				fmt.Sprintf("gop-size=%d", keyframeInterval),
++				"b-frames=0",
++				"rate-control=cbr",
++			}},
++		},
++		{
++			method:  "amf",
++			element: "amfh264enc",
++			label:   "AMD AMF hardware encoding (amfh264enc)",
++			result: encoderResult{rawFormat: "NV12", codec: VideoCodecH264, parts: []string{
++				"amfh264enc",
++				fmt.Sprintf("bitrate=%d", bitrate),
++				fmt.Sprintf("gop-size=%d", keyframeInterval),
++				"usage=low-latency",
++				"rate-control=cbr",
++			}},
++		},
++		{
++			method:  "mf",
++			element: "mfh264enc",
++			label:   "Media Foundation encoding (mfh264enc)",
++			result: encoderResult{rawFormat: "NV12", codec: VideoCodecH264, parts: []string{
++				"mfh264enc",
++				fmt.Sprintf("bitrate=%d", bitrate),
++				fmt.Sprintf("gop-size=%d", keyframeInterval),
++				"bframes=0",
++				"rc-mode=cbr",
++				"low-latency=true",
++			}},
++		},
+ 		{
+ 			method:  "openh264",
+ 			element: "openh264enc",
+@@ -2173,7 +2227,7 @@ func startPreparedTestCapture(ctx context.Context, cfg CaptureConfig, encoder en
+ 	gstArgs := buildGstVideoPipeline(source, beforeConvert, nil, encoder, cfg.MaxWidth, cfg.MaxHeight, timestampedOutput)
+ 
+ 	dbg("[CAPTURE] launching gst-launch-1.0 (test mode) %s", strings.Join(gstArgs, " "))
+-	cmd := exec.CommandContext(captureCtx, "gst-launch-1.0", gstArgs...)
++	cmd := gstCommand(captureCtx, "gst-launch-1.0", gstArgs...)
+ 
+ 	stdout, err := cmd.StdoutPipe()
+ 	if err != nil {
+diff --git a/internal/airplay/capture_d3d11.go b/internal/airplay/capture_d3d11.go
+new file mode 100644
+index 0000000..13e881f
+--- /dev/null
++++ b/internal/airplay/capture_d3d11.go
+@@ -0,0 +1,100 @@
++package airplay
++
++import (
++	"context"
++	"fmt"
++	"strings"
++	"time"
++)
++
++// Windows screen capture uses GStreamer's d3d11 plugin: DXGI desktop
++// duplication of the primary monitor, colour conversion and scaling on the
++// GPU, then one download into system memory for the shared encoding path.
++
++var windowsCaptureElements = []string{"d3d11screencapturesrc", "d3d11convert", "d3d11download"}
++
++func checkWindowsCaptureElements(hasElement func(string) bool) error {
++	var missing []string
++	for _, element := range windowsCaptureElements {
++		if !hasElement(element) {
++			missing = append(missing, element)
++		}
++	}
++	if len(missing) > 0 {
++		return fmt.Errorf("GStreamer %s not found; Windows screen capture needs GStreamer 1.22 or newer with the d3d11 plugin",
++			strings.Join(missing, ", "))
++	}
++	return nil
++}
++
++// d3d11CaptureStages returns the capture source and the stages before the
++// shared videoconvert. The GPU already produces the encoder's input size and,
++// for NV12 encoders, its format, so the shared conversion and scaling stages
++// pass buffers through unchanged.
++func d3d11CaptureStages(cfg CaptureConfig, encoder encoderResult, fps int) (gstStage, []gstStage) {
++	source := gstStage{
++		"d3d11screencapturesrc",
++		fmt.Sprintf("show-cursor=%t", cfg.ShowCursor),
++	}
++	// Any GPU-side format the encoder cannot take directly stays BGRA, which
++	// every DXGI capture produces, and videoconvert finishes the job.
++	format := "BGRA"
++	if encoder.rawFormat == "NV12" {
++		format = "NV12"
++	}
++	scaled := fmt.Sprintf("video/x-raw(memory:D3D11Memory),format=%s", format)
++	if width, height := cfg.MaxWidth&^1, cfg.MaxHeight&^1; width > 0 && height > 0 {
++		scaled += fmt.Sprintf(",width=%d,height=%d,pixel-aspect-ratio=1/1", width, height)
++	}
++	return source, []gstStage{
++		{fmt.Sprintf("video/x-raw(memory:D3D11Memory),framerate=%d/1", fps)},
++		{"d3d11convert", "add-borders=true"},
++		{scaled},
++		{"d3d11download"},
++		lowLatencyVideoQueueStage(),
++	}
++}
++
++func startPreparedWindowsCapture(startupCtx, lifetimeCtx context.Context, cfg CaptureConfig, encoder encoderResult, timestampedOutput bool) (*ScreenCapture, error) {
++	startupCtx, cancelStartup := context.WithTimeout(normalizeContext(startupCtx), captureStartupBudget)
++	defer cancelStartup()
++	captureCtx, cancel := context.WithCancel(normalizeContext(lifetimeCtx))
++
++	fps := cfg.FPS
++	if fps <= 0 {
++		fps = 30
++	}
++	source, beforeConvert := d3d11CaptureStages(cfg, encoder, fps)
++	gstArgs := buildGstVideoPipeline(source, beforeConvert, nil, encoder, cfg.MaxWidth, cfg.MaxHeight, timestampedOutput)
++
++	dbg("[CAPTURE] gst-launch-1.0 (d3d11) %s", strings.Join(gstArgs, " "))
++	return launchGstVideoCapture(startupCtx, captureCtx, cancel, gstArgs, encoder, fps, timestampedOutput,
++		"Windows desktop capture")
++}
++
++// Hardware encoder elements register whenever their plugin loads, even on
++// machines whose GPU or driver cannot open a session, so on Windows they are
++// checked with a few frames before being offered (hasGstElement).
++var windowsHardwareEncoders = map[string]bool{
++	"vulkanh264enc": true, "nvh264enc": true, "nvh265enc": true,
++	"qsvh264enc": true, "amfh264enc": true, "mfh264enc": true,
++}
++
++func windowsEncoderProbeArgs(element string) []string {
++	args := []string{"--quiet", "videotestsrc", "num-buffers=3",
++		"!", "video/x-raw,format=NV12,width=640,height=360,framerate=30/1"}
++	if element == "vulkanh264enc" {
++		args = append(args, "!", "vulkanupload")
++	}
++	return append(args, "!", element, "!", "fakesink")
++}
++
++func windowsEncoderWorks(element string) bool {
++	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
++	defer cancel()
++	err := gstCommand(ctx, "gst-launch-1.0", windowsEncoderProbeArgs(element)...).Run()
++	if err != nil {
++		dbg("[CAPTURE] %s is registered but cannot encode here: %v", element, err)
++	}
++	return err == nil
++}
+diff --git a/internal/airplay/capture_d3d11_test.go b/internal/airplay/capture_d3d11_test.go
+new file mode 100644
+index 0000000..a3b72f7
+--- /dev/null
++++ b/internal/airplay/capture_d3d11_test.go
+@@ -0,0 +1,92 @@
++package airplay
++
++import (
++	"reflect"
++	"strings"
++	"testing"
++)
++
++func TestD3D11PipelineConvertsAndScalesOnGPUForNV12Encoders(t *testing.T) {
++	encoder := encoderResult{rawFormat: "NV12", codec: VideoCodecH264, parts: gstStage{"mfh264enc", "bitrate=4500"}}
++	cfg := CaptureConfig{ShowCursor: true, MaxWidth: 1921, MaxHeight: 1080}
++	source, before := d3d11CaptureStages(cfg, encoder, 30)
++	got := strings.Join(buildGstVideoPipeline(source, before, nil, encoder, cfg.MaxWidth, cfg.MaxHeight, true), " ")
++	want := "--quiet d3d11screencapturesrc show-cursor=true" +
++		" ! video/x-raw(memory:D3D11Memory),framerate=30/1" +
++		" ! d3d11convert add-borders=true" +
++		" ! video/x-raw(memory:D3D11Memory),format=NV12,width=1920,height=1080,pixel-aspect-ratio=1/1" +
++		" ! d3d11download" +
++		" ! queue max-size-buffers=1 max-size-bytes=0 max-size-time=0 leaky=downstream" +
++		" ! videoconvert ! video/x-raw,format=NV12" +
++		" ! videoscale add-borders=true ! video/x-raw,width=1920,height=1080,pixel-aspect-ratio=1/1" +
++		" ! mfh264enc bitrate=4500"
++	if !strings.HasPrefix(got, want+" ! h264parse") {
++		t.Fatalf("pipeline =\n%s\nwant prefix\n%s", got, want)
++	}
++	if !strings.HasSuffix(got, "! rtpstreampay ! fdsink fd=1 sync=false async=false") {
++		t.Fatalf("pipeline does not end in the timestamped stdout framing: %s", got)
++	}
++}
++
++func TestD3D11PipelineLeavesSoftwareEncoderFormatToVideoconvert(t *testing.T) {
++	encoder := encoderResult{rawFormat: "I420", codec: VideoCodecH264, parts: gstStage{"x264enc"}}
++	_, before := d3d11CaptureStages(CaptureConfig{}, encoder, 60)
++	want := []gstStage{
++		{"video/x-raw(memory:D3D11Memory),framerate=60/1"},
++		{"d3d11convert", "add-borders=true"},
++		{"video/x-raw(memory:D3D11Memory),format=BGRA"},
++		{"d3d11download"},
++		lowLatencyVideoQueueStage(),
++	}
++	if !reflect.DeepEqual(before, want) {
++		t.Fatalf("stages = %v, want %v", before, want)
++	}
++}
++
++func TestCheckWindowsCaptureElementsNamesMissingElements(t *testing.T) {
++	if err := checkWindowsCaptureElements(func(string) bool { return true }); err != nil {
++		t.Fatalf("all elements present: %v", err)
++	}
++	err := checkWindowsCaptureElements(func(name string) bool { return name == "d3d11convert" })
++	if err == nil || !strings.Contains(err.Error(), "d3d11screencapturesrc, d3d11download") {
++		t.Fatalf("missing elements error = %v", err)
++	}
++}
++
++func TestWindowsLoopbackSourcePrefersWASAPI2(t *testing.T) {
++	tests := []struct {
++		available  map[string]bool
++		wantSource string
++		wantFirst  string
++	}{
++		{map[string]bool{"wasapi2src": true, "wasapisrc": true}, "wasapi2src", "wasapi2src"},
++		{map[string]bool{"wasapisrc": true}, "wasapisrc", "wasapisrc"},
++		{map[string]bool{}, "", ""},
++	}
++	for _, test := range tests {
++		args, source := windowsLoopbackSourceArgs(func(name string) bool { return test.available[name] })
++		if source != test.wantSource {
++			t.Fatalf("source = %q, want %q", source, test.wantSource)
++		}
++		if test.wantFirst == "" {
++			if args != nil {
++				t.Fatalf("args = %v without a source", args)
++			}
++			continue
++		}
++		if args[0] != test.wantFirst || !reflect.DeepEqual(args[1:], []string{"loopback=true", "low-latency=true"}) {
++			t.Fatalf("args = %v", args)
++		}
++	}
++}
++
++func TestWindowsEncoderProbeUploadsForVulkan(t *testing.T) {
++	got := strings.Join(windowsEncoderProbeArgs("vulkanh264enc"), " ")
++	if !strings.Contains(got, "! vulkanupload ! vulkanh264enc ! fakesink") {
++		t.Fatalf("vulkan probe = %s", got)
++	}
++	got = strings.Join(windowsEncoderProbeArgs("mfh264enc"), " ")
++	if strings.Contains(got, "vulkanupload") || !strings.HasSuffix(got, "! mfh264enc ! fakesink") {
++		t.Fatalf("mf probe = %s", got)
++	}
++}
+diff --git a/internal/airplay/capture_test.go b/internal/airplay/capture_test.go
+index 0b70123..864a9bf 100644
+--- a/internal/airplay/capture_test.go
++++ b/internal/airplay/capture_test.go
+@@ -12,7 +12,6 @@ import (
+ 	"strings"
+ 	"sync"
+ 	"sync/atomic"
+-	"syscall"
+ 	"testing"
+ 	"time"
+ 
+@@ -275,22 +274,8 @@ func TestScreenCaptureStopIsConcurrentAndIdempotent(t *testing.T) {
+ 	}
+ }
+ 
+-func TestStartGStreamerCommandSetsParentDeathSignal(t *testing.T) {
+-	cmd := exec.Command("true")
+-	waitResult, err := startGStreamerCommand(cmd)
+-	if err != nil {
+-		t.Fatalf("startGStreamerCommand: %v", err)
+-	}
+-	if cmd.SysProcAttr == nil || cmd.SysProcAttr.Pdeathsig != syscall.SIGKILL {
+-		t.Fatalf("Pdeathsig = %v, want SIGKILL", cmd.SysProcAttr)
+-	}
+-	if err := <-waitResult; err != nil {
+-		t.Fatalf("wait for supervised command: %v", err)
+-	}
+-}
+-
+ func TestValidateHWAccel(t *testing.T) {
+-	for _, method := range []string{"", "auto", "nvenc", "vaapi", "openh264", "none"} {
++	for _, method := range []string{"", "auto", "nvenc", "vaapi", "qsv", "amf", "mf", "openh264", "none"} {
+ 		if err := ValidateHWAccel(method); err != nil {
+ 			t.Errorf("ValidateHWAccel(%q): %v", method, err)
+ 		}
+@@ -802,7 +787,7 @@ func TestDetectGstEncoderRejectsMissingExplicitOpenH264(t *testing.T) {
+ }
+ 
+ func TestDetectGstEncoderSelectionContract(t *testing.T) {
+-	allProbes := []string{"vulkanh264enc", "nvh264enc", "vah264enc", "openh264enc", "x264enc"}
++	allProbes := []string{"vulkanh264enc", "nvh264enc", "vah264enc", "qsvh264enc", "amfh264enc", "mfh264enc", "openh264enc", "x264enc"}
+ 	tests := []struct {
+ 		name        string
+ 		method      string
+@@ -817,7 +802,7 @@ func TestDetectGstEncoderSelectionContract(t *testing.T) {
+ 			method:      "auto",
+ 			available:   map[string]bool{"openh264enc": true, "x264enc": true},
+ 			wantEncoder: "openh264enc",
+-			wantProbes:  allProbes[:4],
++			wantProbes:  allProbes[:7],
+ 		},
+ 		{
+ 			name:        "empty aliases auto and reaches x264",
+@@ -860,6 +845,27 @@ func TestDetectGstEncoderSelectionContract(t *testing.T) {
+ 			wantProbes: []string{"vah264enc"},
+ 			wantError:  "vah264enc",
+ 		},
++		{
++			name:        "Windows Media Foundation is selected after vendor encoders",
++			method:      "auto",
++			available:   map[string]bool{"mfh264enc": true, "openh264enc": true},
++			wantEncoder: "mfh264enc",
++			wantProbes:  allProbes[:6],
++		},
++		{
++			name:        "qsv selects only Quick Sync",
++			method:      "qsv",
++			available:   map[string]bool{"qsvh264enc": true, "mfh264enc": true},
++			wantEncoder: "qsvh264enc",
++			wantProbes:  []string{"qsvh264enc"},
++		},
++		{
++			name:       "missing amf does not cross fallback",
++			method:     "amf",
++			available:  map[string]bool{"mfh264enc": true, "x264enc": true},
++			wantProbes: []string{"amfh264enc"},
++			wantError:  "amfh264enc",
++		},
+ 		{
+ 			name:        "none forces x264",
+ 			method:      "none",
+diff --git a/internal/airplay/credentials.go b/internal/airplay/credentials.go
+index c07a8ce..b9c85d4 100644
+--- a/internal/airplay/credentials.go
++++ b/internal/airplay/credentials.go
+@@ -6,6 +6,7 @@ import (
+ 	"fmt"
+ 	"os"
+ 	"path/filepath"
++	"runtime"
+ 	"sync"
+ )
+ 
+@@ -30,9 +31,13 @@ const (
+ 	PairingProtocolRaw     PairingProtocol = "raw"
+ )
+ 
+-// DefaultCredentialsPath returns ~/.config/doubletake/credentials.json.
++// DefaultCredentialsPath returns ~/.config/doubletake/credentials.json
++// (%APPDATA%\doubletake\credentials.json on Windows).
+ func DefaultCredentialsPath() string {
+ 	dir := os.Getenv("XDG_CONFIG_HOME")
++	if dir == "" && runtime.GOOS == "windows" {
++		dir, _ = os.UserConfigDir()
++	}
+ 	if dir == "" {
+ 		home, _ := os.UserHomeDir()
+ 		dir = filepath.Join(home, ".config")
+diff --git a/internal/airplay/gst_tools.go b/internal/airplay/gst_tools.go
+new file mode 100644
+index 0000000..020a9d8
+--- /dev/null
++++ b/internal/airplay/gst_tools.go
+@@ -0,0 +1,72 @@
++package airplay
++
++import (
++	"context"
++	"os"
++	"os/exec"
++	"path/filepath"
++	"runtime"
++	"sync"
++)
++
++// gstToolPath resolves a GStreamer command-line tool. Linux packages put it on
++// PATH. On Windows the official MSVC installer does not, and applications
++// commonly ship a private GStreamer next to doubletake, so a few well-known
++// roots are tried first.
++func gstToolPath(name string) string {
++	if runtime.GOOS != "windows" {
++		return name
++	}
++	exe := name + ".exe"
++	for _, root := range gstWindowsRoots() {
++		candidate := filepath.Join(root, "bin", exe)
++		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
++			return candidate
++		}
++	}
++	return name
++}
++
++// gstWindowsRoots lists GStreamer installation roots in priority order:
++// an explicit override, a private copy shipped beside the executable, then
++// the system-wide MSVC installation.
++func gstWindowsRoots() []string {
++	var roots []string
++	if root := os.Getenv("DOUBLETAKE_GSTREAMER_ROOT"); root != "" {
++		roots = append(roots, root)
++	}
++	if exe, err := os.Executable(); err == nil {
++		roots = append(roots, filepath.Join(filepath.Dir(exe), "gstreamer"))
++	}
++	for _, env := range []string{"GSTREAMER_1_0_ROOT_MSVC_X86_64", "GSTREAMER_1_0_ROOT_X86_64"} {
++		if root := os.Getenv(env); root != "" {
++			roots = append(roots, root)
++		}
++	}
++	return roots
++}
++
++// gstCommand builds a GStreamer tool invocation with the platform's child
++// process attributes (no console window on Windows).
++func gstCommand(ctx context.Context, name string, args ...string) *exec.Cmd {
++	cmd := exec.CommandContext(normalizeContext(ctx), gstToolPath(name), args...)
++	prepareChildProcess(cmd)
++	return cmd
++}
++
++// gstElementCache remembers gst-inspect results. Inspecting one element
++// loads the plugin registry each time, which takes around a second on
++// Windows, and capture setup probes many elements.
++var gstElementCache sync.Map
++
++func hasGstElement(name string) bool {
++	if known, ok := gstElementCache.Load(name); ok {
++		return known.(bool)
++	}
++	present := gstCommand(context.Background(), "gst-inspect-1.0", name).Run() == nil
++	if present && runtime.GOOS == "windows" && windowsHardwareEncoders[name] {
++		present = windowsEncoderWorks(name)
++	}
++	gstElementCache.Store(name, present)
++	return present
++}
+diff --git a/internal/airplay/proc_linux.go b/internal/airplay/proc_linux.go
+new file mode 100644
+index 0000000..8a4cce5
+--- /dev/null
++++ b/internal/airplay/proc_linux.go
+@@ -0,0 +1,18 @@
++//go:build linux
++
++package airplay
++
++import (
++	"os/exec"
++	"syscall"
++)
++
++func prepareChildProcess(*exec.Cmd) {}
++
++// bindChildLifetime asks the kernel to kill the child when the creating OS
++// thread exits. startGStreamerCommand keeps that thread locked until Wait.
++func bindChildLifetime(cmd *exec.Cmd) {
++	cmd.SysProcAttr = &syscall.SysProcAttr{Pdeathsig: syscall.SIGKILL}
++}
++
++func afterChildStart(*exec.Cmd) {}
+diff --git a/internal/airplay/proc_linux_test.go b/internal/airplay/proc_linux_test.go
+new file mode 100644
+index 0000000..6d3d357
+--- /dev/null
++++ b/internal/airplay/proc_linux_test.go
+@@ -0,0 +1,23 @@
++//go:build linux
++
++package airplay
++
++import (
++	"os/exec"
++	"syscall"
++	"testing"
++)
++
++func TestStartGStreamerCommandSetsParentDeathSignal(t *testing.T) {
++	cmd := exec.Command("true")
++	waitResult, err := startGStreamerCommand(cmd)
++	if err != nil {
++		t.Fatalf("startGStreamerCommand: %v", err)
++	}
++	if cmd.SysProcAttr == nil || cmd.SysProcAttr.Pdeathsig != syscall.SIGKILL {
++		t.Fatalf("Pdeathsig = %v, want SIGKILL", cmd.SysProcAttr)
++	}
++	if err := <-waitResult; err != nil {
++		t.Fatalf("wait for supervised command: %v", err)
++	}
++}
+diff --git a/internal/airplay/proc_other.go b/internal/airplay/proc_other.go
+new file mode 100644
+index 0000000..18210ce
+--- /dev/null
++++ b/internal/airplay/proc_other.go
+@@ -0,0 +1,11 @@
++//go:build !linux && !windows
++
++package airplay
++
++import "os/exec"
++
++func prepareChildProcess(*exec.Cmd) {}
++
++func bindChildLifetime(*exec.Cmd) {}
++
++func afterChildStart(*exec.Cmd) {}
+diff --git a/internal/airplay/proc_windows.go b/internal/airplay/proc_windows.go
+new file mode 100644
+index 0000000..8fede69
+--- /dev/null
++++ b/internal/airplay/proc_windows.go
+@@ -0,0 +1,69 @@
++//go:build windows
++
++package airplay
++
++import (
++	"log"
++	"os/exec"
++	"sync"
++	"syscall"
++	"unsafe"
++
++	"golang.org/x/sys/windows"
++)
++
++// prepareChildProcess keeps GStreamer's console tools from opening a console
++// window when doubletake itself runs without one (started by a GUI app).
++func prepareChildProcess(cmd *exec.Cmd) {
++	if cmd.SysProcAttr == nil {
++		cmd.SysProcAttr = &syscall.SysProcAttr{}
++	}
++	cmd.SysProcAttr.HideWindow = true
++	cmd.SysProcAttr.CreationFlags |= windows.CREATE_NO_WINDOW
++}
++
++func bindChildLifetime(*exec.Cmd) {}
++
++var (
++	childJobOnce sync.Once
++	childJob     windows.Handle
++)
++
++// killOnCloseJob is a job object whose handle only doubletake holds. Windows
++// closes it when doubletake exits for any reason, which terminates every
++// capture child assigned to it: the counterpart of Linux's Pdeathsig.
++func killOnCloseJob() windows.Handle {
++	childJobOnce.Do(func() {
++		job, err := windows.CreateJobObject(nil, nil)
++		if err != nil {
++			log.Printf("[CAPTURE] warning: create job object: %v", err)
++			return
++		}
++		info := windows.JOBOBJECT_EXTENDED_LIMIT_INFORMATION{}
++		info.BasicLimitInformation.LimitFlags = windows.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
++		if _, err := windows.SetInformationJobObject(job, windows.JobObjectExtendedLimitInformation,
++			uintptr(unsafe.Pointer(&info)), uint32(unsafe.Sizeof(info))); err != nil {
++			log.Printf("[CAPTURE] warning: configure job object: %v", err)
++			_ = windows.CloseHandle(job)
++			return
++		}
++		childJob = job
++	})
++	return childJob
++}
++
++func afterChildStart(cmd *exec.Cmd) {
++	job := killOnCloseJob()
++	if job == 0 || cmd.Process == nil {
++		return
++	}
++	process, err := windows.OpenProcess(windows.PROCESS_SET_QUOTA|windows.PROCESS_TERMINATE, false, uint32(cmd.Process.Pid))
++	if err != nil {
++		log.Printf("[CAPTURE] warning: open child process: %v", err)
++		return
++	}
++	defer windows.CloseHandle(process)
++	if err := windows.AssignProcessToJobObject(job, process); err != nil {
++		log.Printf("[CAPTURE] warning: assign child to job object: %v", err)
++	}
++}
+diff --git a/internal/daemon/control.go b/internal/daemon/control.go
+new file mode 100644
+index 0000000..5723acb
+--- /dev/null
++++ b/internal/daemon/control.go
+@@ -0,0 +1,122 @@
++package daemon
++
++import (
++	"crypto/rand"
++	"crypto/subtle"
++	"encoding/hex"
++	"encoding/json"
++	"fmt"
++	"net"
++	"os"
++	"path/filepath"
++	"runtime"
++	"strings"
++)
++
++// A control endpoint is either a Unix socket path or "tcp:HOST:PORT" on a
++// loopback address. TCP exists for clients without AF_UNIX (Python on
++// Windows). Anyone on the machine can reach a loopback port, so a TCP daemon
++// writes its address and a random token to an owner-only control file and
++// rejects requests without that token.
++const tcpControlPrefix = "tcp:"
++
++// ControlInfo is the content of the control file of a TCP daemon.
++type ControlInfo struct {
++	Addr  string `json:"addr"`
++	Token string `json:"token"`
++	PID   int    `json:"pid"`
++}
++
++// IsTCPControl reports whether a -socket value names a TCP endpoint.
++func IsTCPControl(socket string) bool {
++	return strings.HasPrefix(socket, tcpControlPrefix)
++}
++
++// DefaultSocketPath returns the default control endpoint: a Unix socket in
++// XDG_RUNTIME_DIR, or an ephemeral loopback TCP port on Windows.
++func DefaultSocketPath() string {
++	if runtime.GOOS == "windows" {
++		return tcpControlPrefix + "127.0.0.1:0"
++	}
++	dir := os.Getenv("XDG_RUNTIME_DIR")
++	if dir == "" {
++		dir = "/tmp"
++	}
++	return filepath.Join(dir, "doubletake.sock")
++}
++
++// DefaultControlFile is where a TCP daemon publishes its address and token:
++// %LOCALAPPDATA%\doubletake\control.json on Windows (a per-user directory),
++// next to the default socket elsewhere.
++func DefaultControlFile() string {
++	if runtime.GOOS == "windows" {
++		if dir, err := os.UserCacheDir(); err == nil {
++			return filepath.Join(dir, "doubletake", "control.json")
++		}
++	}
++	return filepath.Join(filepath.Dir(DefaultSocketPath()), "doubletake-control.json")
++}
++
++func listenControl(socket string) (net.Listener, error) {
++	if !IsTCPControl(socket) {
++		return net.Listen("unix", socket)
++	}
++	addr := strings.TrimPrefix(socket, tcpControlPrefix)
++	host, _, err := net.SplitHostPort(addr)
++	if err != nil {
++		return nil, fmt.Errorf("control address %q: %w", addr, err)
++	}
++	if ip := net.ParseIP(host); host != "localhost" && (ip == nil || !ip.IsLoopback()) {
++		return nil, fmt.Errorf("control address %q is not a loopback address", addr)
++	}
++	return net.Listen("tcp", addr)
++}
++
++func newControlToken() (string, error) {
++	buf := make([]byte, 32)
++	if _, err := rand.Read(buf); err != nil {
++		return "", err
++	}
++	return hex.EncodeToString(buf), nil
++}
++
++// writeControlFile replaces the control file atomically so a client never
++// reads a half-written token.
++func writeControlFile(path string, info ControlInfo) error {
++	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
++		return err
++	}
++	data, err := json.Marshal(info)
++	if err != nil {
++		return err
++	}
++	tmp := path + ".tmp"
++	if err := os.WriteFile(tmp, data, 0600); err != nil {
++		return err
++	}
++	if err := os.Rename(tmp, path); err != nil {
++		_ = os.Remove(tmp)
++		return err
++	}
++	return nil
++}
++
++// ReadControlFile returns the address and token of a running TCP daemon.
++func ReadControlFile(path string) (ControlInfo, error) {
++	var info ControlInfo
++	data, err := os.ReadFile(path)
++	if err != nil {
++		return info, err
++	}
++	if err := json.Unmarshal(data, &info); err != nil {
++		return info, fmt.Errorf("control file %s: %w", path, err)
++	}
++	if info.Addr == "" || info.Token == "" {
++		return info, fmt.Errorf("control file %s is incomplete", path)
++	}
++	return info, nil
++}
++
++func tokenMatches(want, got string) bool {
++	return subtle.ConstantTimeCompare([]byte(want), []byte(got)) == 1
++}
+diff --git a/internal/daemon/control_test.go b/internal/daemon/control_test.go
+new file mode 100644
+index 0000000..e3cf769
+--- /dev/null
++++ b/internal/daemon/control_test.go
+@@ -0,0 +1,122 @@
++package daemon
++
++import (
++	"context"
++	"encoding/json"
++	"net"
++	"os"
++	"path/filepath"
++	"strings"
++	"testing"
++	"time"
++)
++
++// startTCPDaemon runs a daemon on an ephemeral loopback port and returns the
++// control information it published.
++func startTCPDaemon(t *testing.T) (ControlInfo, string) {
++	t.Helper()
++	controlFile := filepath.Join(t.TempDir(), "control.json")
++	d, err := New(Config{
++		SocketPath:  "tcp:127.0.0.1:0",
++		ControlFile: controlFile,
++		CredBackend: "file",
++		CredFile:    filepath.Join(t.TempDir(), "credentials.json"),
++		TestMode:    true,
++		NoAudio:     true,
++	})
++	if err != nil {
++		t.Fatalf("create daemon: %v", err)
++	}
++	ctx, cancel := context.WithCancel(context.Background())
++	done := make(chan error, 1)
++	go func() { done <- d.Run(ctx) }()
++	t.Cleanup(func() {
++		cancel()
++		d.Shutdown()
++		select {
++		case err := <-done:
++			if err != nil {
++				t.Errorf("daemon stopped with error: %v", err)
++			}
++		case <-time.After(5 * time.Second):
++			t.Error("daemon did not stop")
++		}
++		if _, err := os.Stat(controlFile); !os.IsNotExist(err) {
++			t.Errorf("control file left behind after shutdown: %v", err)
++		}
++	})
++	deadline := time.Now().Add(5 * time.Second)
++	for {
++		info, err := ReadControlFile(controlFile)
++		if err == nil {
++			return info, controlFile
++		}
++		if time.Now().After(deadline) {
++			t.Fatalf("control file not published: %v", err)
++		}
++		time.Sleep(10 * time.Millisecond)
++	}
++}
++
++func tcpRequest(t *testing.T, addr string, req Request) Response {
++	t.Helper()
++	conn, err := net.DialTimeout("tcp", addr, 2*time.Second)
++	if err != nil {
++		t.Fatalf("dial %s: %v", addr, err)
++	}
++	defer conn.Close()
++	_ = conn.SetDeadline(time.Now().Add(5 * time.Second))
++	if err := json.NewEncoder(conn).Encode(req); err != nil {
++		t.Fatalf("send request: %v", err)
++	}
++	var resp Response
++	if err := json.NewDecoder(conn).Decode(&resp); err != nil {
++		t.Fatalf("read response: %v", err)
++	}
++	return resp
++}
++
++func TestTCPControlRequiresPublishedToken(t *testing.T) {
++	info, controlFile := startTCPDaemon(t)
++
++	if host, _, _ := net.SplitHostPort(info.Addr); host != "127.0.0.1" {
++		t.Fatalf("control address %q is not on loopback", info.Addr)
++	}
++	if info.PID != os.Getpid() || len(info.Token) != 64 {
++		t.Fatalf("control info = %+v", info)
++	}
++	if stat, err := os.Stat(controlFile); err != nil {
++		t.Fatalf("stat control file: %v", err)
++	} else if mode := stat.Mode().Perm(); filepath.Separator == '/' && mode != 0600 {
++		t.Fatalf("control file mode = %o, want 600", mode)
++	}
++
++	for _, token := range []string{"", "wrong", info.Token[:63]} {
++		resp := tcpRequest(t, info.Addr, Request{Cmd: "status", Token: token})
++		if resp.OK || resp.Error != "unauthorized" {
++			t.Fatalf("token %q: response = %+v, want unauthorized", token, resp)
++		}
++	}
++	resp := tcpRequest(t, info.Addr, Request{Cmd: "status", Token: info.Token})
++	if !resp.OK {
++		t.Fatalf("status with token = %+v", resp)
++	}
++}
++
++func TestTCPControlRejectsSecondDaemon(t *testing.T) {
++	_, controlFile := startTCPDaemon(t)
++	second := &Daemon{cfg: Config{SocketPath: "tcp:127.0.0.1:0", ControlFile: controlFile}}
++	err := second.Run(context.Background())
++	if err == nil || !strings.Contains(err.Error(), "already running") {
++		t.Fatalf("second daemon error = %v, want already-running error", err)
++	}
++}
++
++func TestListenControlRejectsNonLoopbackTCP(t *testing.T) {
++	for _, socket := range []string{"tcp:0.0.0.0:0", "tcp:192.0.2.1:0", "tcp:[::]:0", "tcp:noport"} {
++		if ln, err := listenControl(socket); err == nil {
++			ln.Close()
++			t.Errorf("listenControl(%q) succeeded", socket)
++		}
++	}
++}
+diff --git a/internal/daemon/daemon.go b/internal/daemon/daemon.go
+index f00cc8a..0bb65c2 100644
+--- a/internal/daemon/daemon.go
++++ b/internal/daemon/daemon.go
+@@ -9,10 +9,8 @@ import (
+ 	"log"
+ 	"net"
+ 	"os"
+-	"path/filepath"
+ 	"sort"
+ 	"sync"
+-	"syscall"
+ 	"time"
+ 
+ 	"doubletake/internal/airplay"
+@@ -45,6 +43,7 @@ type Request struct {
+ 	Target string `json:"target,omitempty"`
+ 	Port   int    `json:"port,omitempty"`
+ 	Pin    string `json:"pin,omitempty"`
++	Token  string `json:"token,omitempty"` // required on a TCP control endpoint
+ }
+ 
+ // StreamInfo describes one active (or connecting) mirror stream.
+@@ -86,7 +85,8 @@ type DeviceInfo struct {
+ 
+ // Config holds daemon configuration.
+ type Config struct {
+-	SocketPath  string
++	SocketPath  string // Unix socket path, or "tcp:HOST:PORT" on loopback
++	ControlFile string // TCP only: where the address and token are published
+ 	CredFile    string
+ 	CredBackend string
+ 	FPS         int
+@@ -130,15 +130,6 @@ func validatePortRange(portMin, portMax int) error {
+ 	return nil
+ }
+ 
+-// DefaultSocketPath returns the default socket path using XDG_RUNTIME_DIR.
+-func DefaultSocketPath() string {
+-	dir := os.Getenv("XDG_RUNTIME_DIR")
+-	if dir == "" {
+-		dir = "/tmp"
+-	}
+-	return filepath.Join(dir, "doubletake.sock")
+-}
+-
+ // acquireInstanceLock prevents two daemons from owning different listeners at
+ // the same socket path. A Unix socket alone is not sufficient for this: unlinking
+ // its pathname does not stop the process that is already listening on it.
+@@ -152,9 +143,9 @@ func acquireInstanceLock(socketPath string) (*os.File, error) {
+ 		lockFile.Close()
+ 		return nil, fmt.Errorf("chmod daemon lock %s: %w", lockPath, err)
+ 	}
+-	if err := syscall.Flock(int(lockFile.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
++	if err := lockExclusive(lockFile); err != nil {
+ 		lockFile.Close()
+-		if errors.Is(err, syscall.EWOULDBLOCK) || errors.Is(err, syscall.EAGAIN) {
++		if errors.Is(err, errLockHeld) {
+ 			return nil, fmt.Errorf("another doubletake daemon is already running for %s", socketPath)
+ 		}
+ 		return nil, fmt.Errorf("lock daemon instance %s: %w", lockPath, err)
+@@ -166,7 +157,7 @@ func releaseInstanceLock(lockFile *os.File) {
+ 	if lockFile == nil {
+ 		return
+ 	}
+-	_ = syscall.Flock(int(lockFile.Fd()), syscall.LOCK_UN)
++	unlock(lockFile)
+ 	_ = lockFile.Close()
+ }
+ 
+@@ -190,7 +181,7 @@ func removeStaleSocket(socketPath string) error {
+ 		conn.Close()
+ 		return fmt.Errorf("another doubletake daemon is already running for %s", socketPath)
+ 	}
+-	if !errors.Is(dialErr, syscall.ECONNREFUSED) && !os.IsNotExist(dialErr) {
++	if !isConnRefused(dialErr) && !os.IsNotExist(dialErr) {
+ 		return fmt.Errorf("probe existing control socket: %w", dialErr)
+ 	}
+ 	if err := os.Remove(socketPath); err != nil && !os.IsNotExist(err) {
+@@ -318,6 +309,7 @@ type Daemon struct {
+ 
+ 	discoverCancel context.CancelFunc
+ 	listener       net.Listener
++	controlToken   string         // non-empty on a TCP control endpoint
+ 	streamWorkers  sync.WaitGroup // stream, capture, and externally detached cleanup workers
+ 	shuttingDown   bool
+ }
+@@ -375,22 +367,44 @@ func (d *Daemon) Run(ctx context.Context) error {
+ 	// Acquire an advisory lock before removing a stale socket. Without this, a
+ 	// second daemon can unlink the first daemon's live listener and bind a new
+ 	// socket at the same pathname, leaving both daemons and their captures alive.
+-	instanceLock, err := acquireInstanceLock(d.cfg.SocketPath)
++	tcp := IsTCPControl(d.cfg.SocketPath)
++	if tcp && d.cfg.ControlFile == "" {
++		d.cfg.ControlFile = DefaultControlFile()
++	}
++	lockBase := d.cfg.SocketPath
++	if tcp {
++		lockBase = d.cfg.ControlFile
++	}
++	instanceLock, err := acquireInstanceLock(lockBase)
+ 	if err != nil {
+ 		return err
+ 	}
+ 	defer releaseInstanceLock(instanceLock)
+ 
+-	if err := removeStaleSocket(d.cfg.SocketPath); err != nil {
+-		return err
++	if !tcp {
++		if err := removeStaleSocket(d.cfg.SocketPath); err != nil {
++			return err
++		}
+ 	}
+ 
+-	ln, err := net.Listen("unix", d.cfg.SocketPath)
++	ln, err := listenControl(d.cfg.SocketPath)
+ 	if err != nil {
+ 		return fmt.Errorf("listen %s: %w", d.cfg.SocketPath, err)
+ 	}
+-	// Owner-only permissions
+-	if err := os.Chmod(d.cfg.SocketPath, 0700); err != nil {
++	if tcp {
++		token, err := newControlToken()
++		if err != nil {
++			ln.Close()
++			return fmt.Errorf("control token: %w", err)
++		}
++		info := ControlInfo{Addr: ln.Addr().String(), Token: token, PID: os.Getpid()}
++		if err := writeControlFile(d.cfg.ControlFile, info); err != nil {
++			ln.Close()
++			return fmt.Errorf("write control file: %w", err)
++		}
++		d.controlToken = token
++		log.Printf("[daemon] control address %s published in %s", info.Addr, d.cfg.ControlFile)
++	} else if err := os.Chmod(d.cfg.SocketPath, 0700); err != nil { // owner-only permissions
+ 		ln.Close()
+ 		return fmt.Errorf("chmod socket: %w", err)
+ 	}
+@@ -458,7 +472,13 @@ func (d *Daemon) Shutdown() {
+ 	// detached cleanup may still be unwinding. Do not let them run into the next
+ 	// test or process lifecycle.
+ 	d.streamWorkers.Wait()
+-	os.Remove(d.cfg.SocketPath)
++	if IsTCPControl(d.cfg.SocketPath) {
++		if d.cfg.ControlFile != "" {
++			os.Remove(d.cfg.ControlFile)
++		}
++	} else {
++		os.Remove(d.cfg.SocketPath)
++	}
+ }
+ 
+ // backgroundDiscover continuously browses mDNS for AirPlay devices.
+@@ -531,6 +551,10 @@ func (d *Daemon) handleConn(conn net.Conn) {
+ 		enc.Encode(Response{OK: false, Error: "invalid request: " + err.Error()})
+ 		return
+ 	}
++	if d.controlToken != "" && !tokenMatches(d.controlToken, req.Token) {
++		enc.Encode(Response{OK: false, Error: "unauthorized"})
++		return
++	}
+ 
+ 	resp := d.handleRequest(req)
+ 	enc.Encode(resp)
+diff --git a/internal/daemon/daemonclient/client.go b/internal/daemon/daemonclient/client.go
+index 2ce7d23..0e5a27b 100644
+--- a/internal/daemon/daemonclient/client.go
++++ b/internal/daemon/daemonclient/client.go
+@@ -9,9 +9,11 @@ import (
+ 	"doubletake/internal/daemon"
+ )
+ 
+-// Client communicates with a running doubletake daemon over its Unix socket.
++// Client communicates with a running doubletake daemon over its Unix socket,
++// or over loopback TCP with the address and token from its control file.
+ type Client struct {
+-	SocketPath string
++	SocketPath  string
++	ControlFile string // TCP only; empty means daemon.DefaultControlFile()
+ }
+ 
+ // New creates a client that connects to the daemon at the given socket path.
+@@ -24,6 +26,22 @@ func NewDefault() *Client {
+ 	return &Client{SocketPath: daemon.DefaultSocketPath()}
+ }
+ 
++func (c *Client) dial(req *daemon.Request) (net.Conn, error) {
++	if !daemon.IsTCPControl(c.SocketPath) {
++		return net.DialTimeout("unix", c.SocketPath, 5*time.Second)
++	}
++	controlFile := c.ControlFile
++	if controlFile == "" {
++		controlFile = daemon.DefaultControlFile()
++	}
++	info, err := daemon.ReadControlFile(controlFile)
++	if err != nil {
++		return nil, err
++	}
++	req.Token = info.Token
++	return net.DialTimeout("tcp", info.Addr, 5*time.Second)
++}
++
+ // Status returns the daemon's current state.
+ func (c *Client) Status() (*daemon.Response, error) {
+ 	return c.send(daemon.Request{Cmd: "status"})
+@@ -75,7 +93,7 @@ func (c *Client) UnmuteTarget(target string) (*daemon.Response, error) {
+ }
+ 
+ func (c *Client) send(req daemon.Request) (*daemon.Response, error) {
+-	conn, err := net.DialTimeout("unix", c.SocketPath, 5*time.Second)
++	conn, err := c.dial(&req)
+ 	if err != nil {
+ 		return nil, fmt.Errorf("connect to daemon: %w", err)
+ 	}
+diff --git a/internal/daemon/daemonclient/client_test.go b/internal/daemon/daemonclient/client_test.go
+new file mode 100644
+index 0000000..3bd6bac
+--- /dev/null
++++ b/internal/daemon/daemonclient/client_test.go
+@@ -0,0 +1,49 @@
++package daemonclient
++
++import (
++	"context"
++	"path/filepath"
++	"testing"
++	"time"
++
++	"doubletake/internal/daemon"
++)
++
++func TestClientUsesControlFileForTCP(t *testing.T) {
++	controlFile := filepath.Join(t.TempDir(), "control.json")
++	d, err := daemon.New(daemon.Config{
++		SocketPath:  "tcp:127.0.0.1:0",
++		ControlFile: controlFile,
++		CredBackend: "file",
++		CredFile:    filepath.Join(t.TempDir(), "credentials.json"),
++		TestMode:    true,
++		NoAudio:     true,
++	})
++	if err != nil {
++		t.Fatalf("create daemon: %v", err)
++	}
++	ctx, cancel := context.WithCancel(context.Background())
++	done := make(chan error, 1)
++	go func() { done <- d.Run(ctx) }()
++	defer func() {
++		cancel()
++		d.Shutdown()
++		<-done
++	}()
++
++	client := &Client{SocketPath: "tcp:127.0.0.1:0", ControlFile: controlFile}
++	deadline := time.Now().Add(5 * time.Second)
++	for {
++		resp, err := client.Status()
++		if err == nil {
++			if !resp.OK {
++				t.Fatalf("status = %+v", resp)
++			}
++			return
++		}
++		if time.Now().After(deadline) {
++			t.Fatalf("status: %v", err)
++		}
++		time.Sleep(20 * time.Millisecond)
++	}
++}
+diff --git a/internal/daemon/lock_unix.go b/internal/daemon/lock_unix.go
+new file mode 100644
+index 0000000..a805b17
+--- /dev/null
++++ b/internal/daemon/lock_unix.go
+@@ -0,0 +1,27 @@
++//go:build !windows
++
++package daemon
++
++import (
++	"errors"
++	"os"
++	"syscall"
++)
++
++var errLockHeld = errors.New("lock held by another process")
++
++func lockExclusive(f *os.File) error {
++	err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX|syscall.LOCK_NB)
++	if errors.Is(err, syscall.EWOULDBLOCK) || errors.Is(err, syscall.EAGAIN) {
++		return errLockHeld
++	}
++	return err
++}
++
++func unlock(f *os.File) {
++	_ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN)
++}
++
++func isConnRefused(err error) bool {
++	return errors.Is(err, syscall.ECONNREFUSED)
++}
+diff --git a/internal/daemon/lock_windows.go b/internal/daemon/lock_windows.go
+new file mode 100644
+index 0000000..af635bf
+--- /dev/null
++++ b/internal/daemon/lock_windows.go
+@@ -0,0 +1,34 @@
++//go:build windows
++
++package daemon
++
++import (
++	"errors"
++	"os"
++	"syscall"
++
++	"golang.org/x/sys/windows"
++)
++
++var errLockHeld = errors.New("lock held by another process")
++
++func lockExclusive(f *os.File) error {
++	var overlapped windows.Overlapped
++	err := windows.LockFileEx(windows.Handle(f.Fd()),
++		windows.LOCKFILE_EXCLUSIVE_LOCK|windows.LOCKFILE_FAIL_IMMEDIATELY, 0, 1, 0, &overlapped)
++	if errors.Is(err, windows.ERROR_LOCK_VIOLATION) {
++		return errLockHeld
++	}
++	return err
++}
++
++func unlock(f *os.File) {
++	var overlapped windows.Overlapped
++	_ = windows.UnlockFileEx(windows.Handle(f.Fd()), 0, 1, 0, &overlapped)
++}
++
++// isConnRefused also matches Winsock's own code: Go's syscall.ECONNREFUSED
++// is a synthetic value on Windows that a failed AF_UNIX dial never returns.
++func isConnRefused(err error) bool {
++	return errors.Is(err, windows.WSAECONNREFUSED) || errors.Is(err, syscall.ECONNREFUSED)
++}

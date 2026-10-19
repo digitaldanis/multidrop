@@ -1,0 +1,583 @@
+# Texts of the website (https://digitaldanis.github.io/multidrop/) and of the
+# "MultiDrop in your language" list in README.md. tools/build_site.py turns
+# them into one page per language; run it with --readme to refresh README.md.
+#
+# Keep every language truthful to README.md: real AirDrop works on Linux with a
+# supported Wi-Fi card; on Windows iPhones send via LocalSend.
+
+[en]
+name = "English"
+flag = "🇬🇧"
+title = "MultiDrop – AirDrop, Quick Share and AirPlay for Windows and Linux"
+description = "Free, open-source app with AirDrop, Quick Share, LocalSend and AirPlay for Windows and Linux. Send files between your PC and iPhone, Android or Samsung – no cable, no cloud, no account."
+h1 = "AirDrop, Quick Share, LocalSend and AirPlay in one app – for Windows and Linux"
+lead = "Your PC shows up in the share menu of every phone in the room. iPhones speak AirDrop, Android and Samsung phones speak Quick Share, the rest use LocalSend – MultiDrop speaks all of them at once."
+summary = "AirDrop, Quick Share, LocalSend and AirPlay in one app for Windows and Linux: send files between your PC and an iPhone, Android or Samsung phone – no cable, no cloud, no account."
+more = "More"
+download = "Download for Windows"
+linux = "Install on Linux"
+source = "Source code on GitHub"
+features_title = "What MultiDrop does"
+features = [
+  "**Quick Share / Nearby Share** on Windows and Linux – Android and Samsung phones send to your PC from their share menu, no app needed",
+  "**AirDrop on Linux** – send and receive with iPhone, iPad and Mac (supported Wi-Fi card)",
+  "**iPhone to Windows** – with the free LocalSend app",
+  "**AirPlay** – mirror your Windows or Linux screen to an Apple TV, play your PC's sound on HomePod and Sonos",
+  "**Private** – directly between devices on your Wi-Fi, encrypted, no server, no account",
+]
+apt_title = "Ubuntu and Debian"
+faq_title = "Questions"
+faq = [
+  ["Is there AirDrop for Windows?", "Apple's AirDrop radio (AWDL) does not run on Windows Wi-Fi drivers. MultiDrop covers the rest on Windows: iPhones send with the free LocalSend app, Android and Samsung use Quick Share, and you get AirPlay screen mirroring."],
+  ["Is there AirDrop for Linux?", "Yes. MultiDrop sends to and receives from iPhones, iPads and Macs with AirDrop on Linux when the Wi-Fi card supports it (for example MediaTek MT7925)."],
+  ["How do I send files from an iPhone to a PC without a cable?", "Start MultiDrop on the PC, then send from the free LocalSend app on the iPhone."],
+  ["Can I use Quick Share on a PC?", "Yes. MultiDrop appears in the Quick Share menu of Android and Samsung phones on Windows and Linux, without a Google account."],
+  ["Is MultiDrop free and private?", "Yes. It is open source (GPL-3.0), has no server and no account, and files go directly between your devices."],
+]
+footer = "AirDrop and AirPlay are trademarks of Apple Inc., Quick Share of Google LLC and Samsung Electronics. MultiDrop is an independent open-source project."
+languages = "Languages"
+
+[de]
+name = "Deutsch"
+flag = "🇩🇪"
+title = "MultiDrop – AirDrop, Quick Share und AirPlay für Windows und Linux"
+description = "Kostenlose Open-Source-App mit AirDrop, Quick Share, LocalSend und AirPlay für Windows und Linux. Dateien zwischen PC und iPhone, Android oder Samsung senden – ohne Kabel, Cloud oder Konto."
+h1 = "AirDrop, Quick Share, LocalSend und AirPlay in einer App – für Windows und Linux"
+lead = "Dein PC erscheint im Teilen-Menü jedes Handys im Raum. iPhones sprechen AirDrop, Android und Samsung sprechen Quick Share, der Rest nutzt LocalSend – MultiDrop spricht alle gleichzeitig."
+summary = "AirDrop, Quick Share, LocalSend und AirPlay in einer App für Windows und Linux: Dateien zwischen PC und iPhone, Android oder Samsung senden – ohne Kabel, Cloud oder Konto."
+more = "Mehr"
+download = "Für Windows herunterladen"
+linux = "Unter Linux installieren"
+source = "Quellcode auf GitHub"
+features_title = "Was MultiDrop kann"
+features = [
+  "**Quick Share / Nearby Share** unter Windows und Linux – Android- und Samsung-Handys senden direkt aus dem Teilen-Menü an den PC, ohne App",
+  "**AirDrop unter Linux** – senden und empfangen mit iPhone, iPad und Mac (unterstützte WLAN-Karte)",
+  "**Vom iPhone auf Windows** – mit der kostenlosen LocalSend-App",
+  "**AirPlay** – Windows- oder Linux-Bildschirm auf ein Apple TV spiegeln, PC-Ton auf HomePod und Sonos abspielen",
+  "**Privat** – direkt zwischen den Geräten im WLAN, verschlüsselt, kein Server, kein Konto",
+]
+apt_title = "Ubuntu und Debian"
+faq_title = "Fragen"
+faq = [
+  ["Gibt es AirDrop für Windows?", "Apples AirDrop-Funk (AWDL) läuft nicht mit Windows-WLAN-Treibern. MultiDrop deckt den Rest ab: iPhones senden mit der kostenlosen LocalSend-App, Android und Samsung per Quick Share, dazu kommt AirPlay-Bildschirmspiegelung."],
+  ["Gibt es AirDrop für Linux?", "Ja. MultiDrop sendet und empfängt unter Linux per AirDrop mit iPhone, iPad und Mac, wenn die WLAN-Karte es unterstützt (zum Beispiel MediaTek MT7925)."],
+  ["Wie schicke ich Dateien ohne Kabel vom iPhone auf den PC?", "MultiDrop auf dem PC starten, dann auf dem iPhone aus der kostenlosen LocalSend-App senden."],
+  ["Kann ich Quick Share am PC nutzen?", "Ja. MultiDrop erscheint unter Windows und Linux im Quick-Share-Menü von Android- und Samsung-Handys, ohne Google-Konto."],
+  ["Ist MultiDrop kostenlos und privat?", "Ja. Open Source (GPL-3.0), kein Server, kein Konto – die Dateien gehen direkt zwischen deinen Geräten."],
+]
+footer = "AirDrop und AirPlay sind Marken von Apple Inc., Quick Share von Google LLC und Samsung Electronics. MultiDrop ist ein unabhängiges Open-Source-Projekt."
+languages = "Sprachen"
+
+[es]
+name = "Español"
+flag = "🇪🇸"
+title = "MultiDrop – AirDrop, Quick Share y AirPlay para Windows y Linux"
+description = "App gratuita y de código abierto con AirDrop, Quick Share, LocalSend y AirPlay para Windows y Linux. Envía archivos entre tu PC y tu iPhone, Android o Samsung, sin cables, sin nube y sin cuenta."
+h1 = "AirDrop, Quick Share, LocalSend y AirPlay en una sola app, para Windows y Linux"
+lead = "Tu PC aparece en el menú de compartir de cualquier móvil. Los iPhone hablan AirDrop, Android y Samsung hablan Quick Share y el resto usa LocalSend: MultiDrop los habla todos a la vez."
+summary = "AirDrop, Quick Share, LocalSend y AirPlay en una sola app para Windows y Linux: envía archivos entre tu PC y tu iPhone, Android o Samsung, sin cables, sin nube y sin cuenta."
+more = "Más"
+download = "Descargar para Windows"
+linux = "Instalar en Linux"
+source = "Código fuente en GitHub"
+features_title = "Qué hace MultiDrop"
+features = [
+  "**Quick Share / Nearby Share** en Windows y Linux: los móviles Android y Samsung envían al PC desde su menú de compartir, sin instalar nada",
+  "**AirDrop en Linux**: envía y recibe con iPhone, iPad y Mac (tarjeta Wi-Fi compatible)",
+  "**Del iPhone a Windows**: con la app gratuita LocalSend",
+  "**AirPlay**: duplica la pantalla de Windows o Linux en un Apple TV y reproduce el sonido del PC en HomePod y Sonos",
+  "**Privado**: directo entre dispositivos en tu Wi-Fi, cifrado, sin servidor ni cuenta",
+]
+apt_title = "Ubuntu y Debian"
+faq_title = "Preguntas"
+faq = [
+  ["¿Hay AirDrop para Windows?", "La radio de AirDrop de Apple (AWDL) no funciona con los drivers Wi-Fi de Windows. MultiDrop cubre el resto: el iPhone envía con la app gratuita LocalSend, Android y Samsung con Quick Share, y además tienes duplicación de pantalla AirPlay."],
+  ["¿Hay AirDrop para Linux?", "Sí. MultiDrop envía y recibe por AirDrop con iPhone, iPad y Mac en Linux si la tarjeta Wi-Fi lo admite (por ejemplo MediaTek MT7925)."],
+  ["¿Cómo paso archivos del iPhone al PC sin cable?", "Abre MultiDrop en el PC y envía desde la app gratuita LocalSend en el iPhone."],
+  ["¿Puedo usar Quick Share en el PC?", "Sí. MultiDrop aparece en el menú Quick Share de Android y Samsung en Windows y Linux, sin cuenta de Google."],
+  ["¿MultiDrop es gratis y privado?", "Sí. Es de código abierto (GPL-3.0), sin servidor ni cuenta; los archivos van directamente entre tus dispositivos."],
+]
+footer = "AirDrop y AirPlay son marcas de Apple Inc.; Quick Share, de Google LLC y Samsung Electronics. MultiDrop es un proyecto independiente de código abierto."
+languages = "Idiomas"
+
+[fr]
+name = "Français"
+flag = "🇫🇷"
+title = "MultiDrop – AirDrop, Quick Share et AirPlay pour Windows et Linux"
+description = "Appli gratuite et open source avec AirDrop, Quick Share, LocalSend et AirPlay pour Windows et Linux. Envoyez des fichiers entre votre PC et un iPhone, Android ou Samsung, sans câble, sans cloud, sans compte."
+h1 = "AirDrop, Quick Share, LocalSend et AirPlay dans une seule appli – pour Windows et Linux"
+lead = "Votre PC apparaît dans le menu de partage de chaque téléphone. Les iPhone parlent AirDrop, Android et Samsung parlent Quick Share, les autres utilisent LocalSend – MultiDrop les parle tous à la fois."
+summary = "AirDrop, Quick Share, LocalSend et AirPlay dans une seule appli pour Windows et Linux : envoyez des fichiers entre votre PC et un iPhone, Android ou Samsung, sans câble, sans cloud, sans compte."
+more = "Plus"
+download = "Télécharger pour Windows"
+linux = "Installer sous Linux"
+source = "Code source sur GitHub"
+features_title = "Ce que fait MultiDrop"
+features = [
+  "**Quick Share / Partage à proximité** sous Windows et Linux – les téléphones Android et Samsung envoient au PC depuis leur menu de partage, sans appli",
+  "**AirDrop sous Linux** – envoi et réception avec iPhone, iPad et Mac (carte Wi-Fi compatible)",
+  "**De l'iPhone vers Windows** – avec l'appli gratuite LocalSend",
+  "**AirPlay** – recopiez l'écran Windows ou Linux sur une Apple TV, diffusez le son du PC sur HomePod et Sonos",
+  "**Privé** – directement entre les appareils sur votre Wi-Fi, chiffré, sans serveur ni compte",
+]
+apt_title = "Ubuntu et Debian"
+faq_title = "Questions"
+faq = [
+  ["Existe-t-il AirDrop pour Windows ?", "La radio AirDrop d'Apple (AWDL) ne fonctionne pas avec les pilotes Wi-Fi de Windows. MultiDrop couvre le reste : l'iPhone envoie avec l'appli gratuite LocalSend, Android et Samsung avec Quick Share, et vous avez la recopie d'écran AirPlay."],
+  ["Existe-t-il AirDrop pour Linux ?", "Oui. MultiDrop envoie et reçoit par AirDrop avec iPhone, iPad et Mac sous Linux si la carte Wi-Fi le permet (par exemple MediaTek MT7925)."],
+  ["Comment transférer des fichiers de l'iPhone vers le PC sans câble ?", "Lancez MultiDrop sur le PC, puis envoyez depuis l'appli gratuite LocalSend sur l'iPhone."],
+  ["Puis-je utiliser Quick Share sur un PC ?", "Oui. MultiDrop apparaît dans le menu Quick Share des téléphones Android et Samsung sous Windows et Linux, sans compte Google."],
+  ["MultiDrop est-il gratuit et privé ?", "Oui. Il est open source (GPL-3.0), sans serveur ni compte ; les fichiers passent directement entre vos appareils."],
+]
+footer = "AirDrop et AirPlay sont des marques d'Apple Inc., Quick Share de Google LLC et Samsung Electronics. MultiDrop est un projet open source indépendant."
+languages = "Langues"
+
+[pt]
+name = "Português"
+flag = "🇧🇷"
+title = "MultiDrop – AirDrop, Quick Share e AirPlay para Windows e Linux"
+description = "App gratuito e de código aberto com AirDrop, Quick Share, LocalSend e AirPlay para Windows e Linux. Envie arquivos entre o PC e iPhone, Android ou Samsung, sem cabo, sem nuvem e sem conta."
+h1 = "AirDrop, Quick Share, LocalSend e AirPlay em um só app – para Windows e Linux"
+lead = "Seu PC aparece no menu de compartilhamento de qualquer celular. iPhones falam AirDrop, Android e Samsung falam Quick Share, o resto usa LocalSend – o MultiDrop fala todos ao mesmo tempo."
+summary = "AirDrop, Quick Share, LocalSend e AirPlay em um só app para Windows e Linux: envie arquivos entre o PC e iPhone, Android ou Samsung, sem cabo, sem nuvem e sem conta."
+more = "Mais"
+download = "Baixar para Windows"
+linux = "Instalar no Linux"
+source = "Código-fonte no GitHub"
+features_title = "O que o MultiDrop faz"
+features = [
+  "**Quick Share / Nearby Share** no Windows e Linux – celulares Android e Samsung enviam ao PC pelo menu de compartilhamento, sem app",
+  "**AirDrop no Linux** – envie e receba com iPhone, iPad e Mac (placa Wi-Fi compatível)",
+  "**Do iPhone para o Windows** – com o app gratuito LocalSend",
+  "**AirPlay** – espelhe a tela do Windows ou Linux na Apple TV e toque o som do PC no HomePod e Sonos",
+  "**Privado** – direto entre os aparelhos no seu Wi-Fi, criptografado, sem servidor e sem conta",
+]
+apt_title = "Ubuntu e Debian"
+faq_title = "Perguntas"
+faq = [
+  ["Existe AirDrop para Windows?", "O rádio do AirDrop da Apple (AWDL) não funciona com os drivers Wi-Fi do Windows. O MultiDrop cobre o resto: o iPhone envia com o app gratuito LocalSend, Android e Samsung com Quick Share, e você ganha espelhamento de tela AirPlay."],
+  ["Existe AirDrop para Linux?", "Sim. O MultiDrop envia e recebe por AirDrop com iPhone, iPad e Mac no Linux quando a placa Wi-Fi suporta (por exemplo MediaTek MT7925)."],
+  ["Como passar arquivos do iPhone para o PC sem cabo?", "Abra o MultiDrop no PC e envie pelo app gratuito LocalSend no iPhone."],
+  ["Dá para usar o Quick Share no PC?", "Sim. O MultiDrop aparece no menu Quick Share de celulares Android e Samsung no Windows e no Linux, sem conta Google."],
+  ["O MultiDrop é grátis e privado?", "Sim. É código aberto (GPL-3.0), sem servidor e sem conta; os arquivos vão direto entre seus aparelhos."],
+]
+footer = "AirDrop e AirPlay são marcas da Apple Inc.; Quick Share, da Google LLC e da Samsung Electronics. MultiDrop é um projeto independente de código aberto."
+languages = "Idiomas"
+
+[it]
+name = "Italiano"
+flag = "🇮🇹"
+title = "MultiDrop – AirDrop, Quick Share e AirPlay per Windows e Linux"
+description = "App gratuita e open source con AirDrop, Quick Share, LocalSend e AirPlay per Windows e Linux. Invia file tra PC e iPhone, Android o Samsung, senza cavi, cloud o account."
+h1 = "AirDrop, Quick Share, LocalSend e AirPlay in un'unica app – per Windows e Linux"
+lead = "Il tuo PC compare nel menu di condivisione di ogni telefono. Gli iPhone parlano AirDrop, Android e Samsung parlano Quick Share, gli altri usano LocalSend – MultiDrop li parla tutti insieme."
+summary = "AirDrop, Quick Share, LocalSend e AirPlay in un'unica app per Windows e Linux: invia file tra PC e iPhone, Android o Samsung, senza cavi, cloud o account."
+more = "Altro"
+download = "Scarica per Windows"
+linux = "Installa su Linux"
+source = "Codice sorgente su GitHub"
+features_title = "Cosa fa MultiDrop"
+features = [
+  "**Quick Share / Nearby Share** su Windows e Linux – i telefoni Android e Samsung inviano al PC dal menu di condivisione, senza app",
+  "**AirDrop su Linux** – invia e ricevi con iPhone, iPad e Mac (scheda Wi-Fi compatibile)",
+  "**Da iPhone a Windows** – con l'app gratuita LocalSend",
+  "**AirPlay** – duplica lo schermo di Windows o Linux su Apple TV, riproduci l'audio del PC su HomePod e Sonos",
+  "**Privato** – direttamente tra i dispositivi sulla tua Wi-Fi, cifrato, senza server né account",
+]
+apt_title = "Ubuntu e Debian"
+faq_title = "Domande"
+faq = [
+  ["Esiste AirDrop per Windows?", "La radio AirDrop di Apple (AWDL) non funziona con i driver Wi-Fi di Windows. MultiDrop copre il resto: l'iPhone invia con l'app gratuita LocalSend, Android e Samsung con Quick Share, e in più c'è la duplicazione dello schermo AirPlay."],
+  ["Esiste AirDrop per Linux?", "Sì. MultiDrop invia e riceve via AirDrop con iPhone, iPad e Mac su Linux se la scheda Wi-Fi lo supporta (ad esempio MediaTek MT7925)."],
+  ["Come trasferisco file da iPhone al PC senza cavo?", "Avvia MultiDrop sul PC, poi invia dall'app gratuita LocalSend sull'iPhone."],
+  ["Posso usare Quick Share sul PC?", "Sì. MultiDrop compare nel menu Quick Share dei telefoni Android e Samsung su Windows e Linux, senza account Google."],
+  ["MultiDrop è gratuito e privato?", "Sì. È open source (GPL-3.0), senza server né account; i file passano direttamente tra i tuoi dispositivi."],
+]
+footer = "AirDrop e AirPlay sono marchi di Apple Inc., Quick Share di Google LLC e Samsung Electronics. MultiDrop è un progetto open source indipendente."
+languages = "Lingue"
+
+[nl]
+name = "Nederlands"
+flag = "🇳🇱"
+title = "MultiDrop – AirDrop, Quick Share en AirPlay voor Windows en Linux"
+description = "Gratis open-source app met AirDrop, Quick Share, LocalSend en AirPlay voor Windows en Linux. Stuur bestanden tussen pc en iPhone, Android of Samsung, zonder kabel, cloud of account."
+h1 = "AirDrop, Quick Share, LocalSend en AirPlay in één app – voor Windows en Linux"
+lead = "Je pc verschijnt in het deelmenu van elke telefoon. iPhones spreken AirDrop, Android en Samsung spreken Quick Share, de rest gebruikt LocalSend – MultiDrop spreekt ze allemaal tegelijk."
+summary = "AirDrop, Quick Share, LocalSend en AirPlay in één app voor Windows en Linux: stuur bestanden tussen pc en iPhone, Android of Samsung, zonder kabel, cloud of account."
+more = "Meer"
+download = "Downloaden voor Windows"
+linux = "Installeren op Linux"
+source = "Broncode op GitHub"
+features_title = "Wat MultiDrop doet"
+features = [
+  "**Quick Share / Nearby Share** op Windows en Linux – Android- en Samsung-telefoons sturen vanuit hun deelmenu naar de pc, zonder app",
+  "**AirDrop op Linux** – verzenden en ontvangen met iPhone, iPad en Mac (ondersteunde wifikaart)",
+  "**Van iPhone naar Windows** – met de gratis LocalSend-app",
+  "**AirPlay** – spiegel je Windows- of Linux-scherm naar een Apple TV, speel pc-geluid af op HomePod en Sonos",
+  "**Privé** – rechtstreeks tussen apparaten op je wifi, versleuteld, geen server, geen account",
+]
+apt_title = "Ubuntu en Debian"
+faq_title = "Vragen"
+faq = [
+  ["Bestaat er AirDrop voor Windows?", "Apples AirDrop-radio (AWDL) werkt niet met wifidrivers van Windows. MultiDrop regelt de rest: de iPhone stuurt via de gratis LocalSend-app, Android en Samsung via Quick Share, en je krijgt AirPlay-schermspiegeling."],
+  ["Bestaat er AirDrop voor Linux?", "Ja. MultiDrop verstuurt en ontvangt via AirDrop met iPhone, iPad en Mac op Linux als de wifikaart het ondersteunt (bijvoorbeeld MediaTek MT7925)."],
+  ["Hoe zet ik bestanden van iPhone naar pc zonder kabel?", "Start MultiDrop op de pc en stuur vanuit de gratis LocalSend-app op de iPhone."],
+  ["Kan ik Quick Share op een pc gebruiken?", "Ja. MultiDrop verschijnt in het Quick Share-menu van Android- en Samsung-telefoons op Windows en Linux, zonder Google-account."],
+  ["Is MultiDrop gratis en privé?", "Ja. Open source (GPL-3.0), geen server en geen account; bestanden gaan rechtstreeks tussen je apparaten."],
+]
+footer = "AirDrop en AirPlay zijn handelsmerken van Apple Inc., Quick Share van Google LLC en Samsung Electronics. MultiDrop is een onafhankelijk open-sourceproject."
+languages = "Talen"
+
+[pl]
+name = "Polski"
+flag = "🇵🇱"
+title = "MultiDrop – AirDrop, Quick Share i AirPlay dla Windows i Linux"
+description = "Darmowa aplikacja open source z AirDrop, Quick Share, LocalSend i AirPlay dla Windows i Linux. Przesyłaj pliki między PC a iPhonem, Androidem lub Samsungiem, bez kabla, chmury i konta."
+h1 = "AirDrop, Quick Share, LocalSend i AirPlay w jednej aplikacji – dla Windows i Linux"
+lead = "Twój komputer pojawia się w menu udostępniania każdego telefonu. iPhone'y mówią AirDrop, Android i Samsung mówią Quick Share, reszta używa LocalSend – MultiDrop mówi wszystkimi naraz."
+summary = "AirDrop, Quick Share, LocalSend i AirPlay w jednej aplikacji dla Windows i Linux: przesyłaj pliki między PC a iPhonem, Androidem lub Samsungiem, bez kabla, chmury i konta."
+more = "Więcej"
+download = "Pobierz dla Windows"
+linux = "Zainstaluj w Linuksie"
+source = "Kod źródłowy na GitHubie"
+features_title = "Co potrafi MultiDrop"
+features = [
+  "**Quick Share / Nearby Share** w Windows i Linuksie – telefony z Androidem i Samsungi wysyłają na PC z menu udostępniania, bez aplikacji",
+  "**AirDrop w Linuksie** – wysyłanie i odbieranie z iPhone'a, iPada i Maca (obsługiwana karta Wi-Fi)",
+  "**Z iPhone'a na Windows** – darmową aplikacją LocalSend",
+  "**AirPlay** – wyświetlaj ekran Windows lub Linuksa na Apple TV, odtwarzaj dźwięk z PC na HomePodzie i Sonosie",
+  "**Prywatnie** – bezpośrednio między urządzeniami w Twojej sieci Wi-Fi, szyfrowane, bez serwera i konta",
+]
+apt_title = "Ubuntu i Debian"
+faq_title = "Pytania"
+faq = [
+  ["Czy jest AirDrop dla Windows?", "Radio AirDrop Apple (AWDL) nie działa ze sterownikami Wi-Fi w Windows. MultiDrop załatwia resztę: iPhone wysyła przez darmową aplikację LocalSend, Android i Samsung przez Quick Share, a do tego masz kopię ekranu AirPlay."],
+  ["Czy jest AirDrop dla Linuksa?", "Tak. MultiDrop wysyła i odbiera przez AirDrop z iPhone'a, iPada i Maca w Linuksie, jeśli karta Wi-Fi to obsługuje (np. MediaTek MT7925)."],
+  ["Jak przesłać pliki z iPhone'a na PC bez kabla?", "Uruchom MultiDrop na komputerze i wyślij z darmowej aplikacji LocalSend na iPhonie."],
+  ["Czy mogę używać Quick Share na PC?", "Tak. MultiDrop pojawia się w menu Quick Share telefonów z Androidem i Samsungów w Windows i Linuksie, bez konta Google."],
+  ["Czy MultiDrop jest darmowy i prywatny?", "Tak. To open source (GPL-3.0), bez serwera i konta; pliki idą bezpośrednio między Twoimi urządzeniami."],
+]
+footer = "AirDrop i AirPlay są znakami towarowymi Apple Inc., Quick Share – Google LLC i Samsung Electronics. MultiDrop to niezależny projekt open source."
+languages = "Języki"
+
+[tr]
+name = "Türkçe"
+flag = "🇹🇷"
+title = "MultiDrop – Windows ve Linux için AirDrop, Quick Share ve AirPlay"
+description = "Windows ve Linux için AirDrop, Quick Share, LocalSend ve AirPlay içeren ücretsiz, açık kaynaklı uygulama. PC ile iPhone, Android veya Samsung arasında kablosuz, bulutsuz ve hesapsız dosya gönderin."
+h1 = "AirDrop, Quick Share, LocalSend ve AirPlay tek uygulamada – Windows ve Linux için"
+lead = "Bilgisayarınız odadaki her telefonun paylaşım menüsünde görünür. iPhone'lar AirDrop, Android ve Samsung Quick Share, diğerleri LocalSend konuşur – MultiDrop hepsini aynı anda konuşur."
+summary = "AirDrop, Quick Share, LocalSend ve AirPlay tek uygulamada, Windows ve Linux için: PC ile iPhone, Android veya Samsung arasında kablosuz, bulutsuz ve hesapsız dosya gönderin."
+more = "Daha fazla"
+download = "Windows için indir"
+linux = "Linux'a kur"
+source = "GitHub'da kaynak kodu"
+features_title = "MultiDrop neler yapar"
+features = [
+  "Windows ve Linux'ta **Quick Share / Nearby Share** – Android ve Samsung telefonlar paylaşım menüsünden PC'ye gönderir, uygulama gerekmez",
+  "**Linux'ta AirDrop** – iPhone, iPad ve Mac ile gönderip alın (desteklenen Wi-Fi kartı)",
+  "**iPhone'dan Windows'a** – ücretsiz LocalSend uygulamasıyla",
+  "**AirPlay** – Windows veya Linux ekranını Apple TV'ye yansıtın, PC sesini HomePod ve Sonos'ta çalın",
+  "**Gizli** – Wi-Fi'nizdeki cihazlar arasında doğrudan, şifreli, sunucu ve hesap yok",
+]
+apt_title = "Ubuntu ve Debian"
+faq_title = "Sorular"
+faq = [
+  ["Windows için AirDrop var mı?", "Apple'ın AirDrop radyosu (AWDL) Windows Wi-Fi sürücüleriyle çalışmaz. MultiDrop gerisini halleder: iPhone ücretsiz LocalSend uygulamasıyla, Android ve Samsung Quick Share ile gönderir; üstüne AirPlay ekran yansıtma gelir."],
+  ["Linux için AirDrop var mı?", "Evet. Wi-Fi kartı destekliyorsa (ör. MediaTek MT7925) MultiDrop Linux'ta iPhone, iPad ve Mac ile AirDrop üzerinden gönderir ve alır."],
+  ["iPhone'dan PC'ye kablosuz dosya nasıl aktarılır?", "PC'de MultiDrop'u açın, ardından iPhone'daki ücretsiz LocalSend uygulamasından gönderin."],
+  ["Quick Share'i PC'de kullanabilir miyim?", "Evet. MultiDrop, Windows ve Linux'ta Android ve Samsung telefonların Quick Share menüsünde Google hesabı olmadan görünür."],
+  ["MultiDrop ücretsiz ve gizli mi?", "Evet. Açık kaynaklıdır (GPL-3.0), sunucu ve hesap yoktur; dosyalar doğrudan cihazlarınız arasında gider."],
+]
+footer = "AirDrop ve AirPlay, Apple Inc.'in; Quick Share, Google LLC ve Samsung Electronics'in ticari markalarıdır. MultiDrop bağımsız bir açık kaynak projesidir."
+languages = "Diller"
+
+[ru]
+name = "Русский"
+flag = "🇷🇺"
+title = "MultiDrop – AirDrop, Quick Share и AirPlay для Windows и Linux"
+description = "Бесплатное приложение с открытым кодом: AirDrop, Quick Share, LocalSend и AirPlay для Windows и Linux. Передавайте файлы между ПК и iPhone, Android или Samsung без кабеля, облака и аккаунта."
+h1 = "AirDrop, Quick Share, LocalSend и AirPlay в одном приложении – для Windows и Linux"
+lead = "Ваш ПК появляется в меню «Поделиться» любого телефона рядом. iPhone говорят на AirDrop, Android и Samsung – на Quick Share, остальные используют LocalSend. MultiDrop говорит на всех сразу."
+summary = "AirDrop, Quick Share, LocalSend и AirPlay в одном приложении для Windows и Linux: передавайте файлы между ПК и iPhone, Android или Samsung без кабеля, облака и аккаунта."
+more = "Подробнее"
+download = "Скачать для Windows"
+linux = "Установить в Linux"
+source = "Исходный код на GitHub"
+features_title = "Что умеет MultiDrop"
+features = [
+  "**Quick Share / Nearby Share** в Windows и Linux – телефоны Android и Samsung отправляют на ПК из меню «Поделиться», без приложений",
+  "**AirDrop в Linux** – отправка и приём с iPhone, iPad и Mac (поддерживаемая Wi-Fi-карта)",
+  "**С iPhone на Windows** – через бесплатное приложение LocalSend",
+  "**AirPlay** – трансляция экрана Windows или Linux на Apple TV, звук ПК на HomePod и Sonos",
+  "**Приватно** – напрямую между устройствами в вашей сети Wi-Fi, с шифрованием, без сервера и аккаунта",
+]
+apt_title = "Ubuntu и Debian"
+faq_title = "Вопросы"
+faq = [
+  ["Есть ли AirDrop для Windows?", "Радиоканал AirDrop от Apple (AWDL) не работает с Wi-Fi-драйверами Windows. MultiDrop закрывает остальное: iPhone отправляет через бесплатное приложение LocalSend, Android и Samsung – через Quick Share, плюс трансляция экрана по AirPlay."],
+  ["Есть ли AirDrop для Linux?", "Да. MultiDrop отправляет и принимает по AirDrop с iPhone, iPad и Mac в Linux, если Wi-Fi-карта это поддерживает (например, MediaTek MT7925)."],
+  ["Как передать файлы с iPhone на ПК без кабеля?", "Запустите MultiDrop на ПК и отправьте из бесплатного приложения LocalSend на iPhone."],
+  ["Можно ли пользоваться Quick Share на ПК?", "Да. MultiDrop появляется в меню Quick Share телефонов Android и Samsung в Windows и Linux, без аккаунта Google."],
+  ["MultiDrop бесплатный и приватный?", "Да. Открытый код (GPL-3.0), без сервера и аккаунта – файлы идут напрямую между вашими устройствами."],
+]
+footer = "AirDrop и AirPlay – товарные знаки Apple Inc., Quick Share – Google LLC и Samsung Electronics. MultiDrop – независимый проект с открытым кодом."
+languages = "Языки"
+
+[uk]
+name = "Українська"
+flag = "🇺🇦"
+title = "MultiDrop – AirDrop, Quick Share і AirPlay для Windows і Linux"
+description = "Безкоштовний застосунок з відкритим кодом: AirDrop, Quick Share, LocalSend і AirPlay для Windows і Linux. Надсилайте файли між ПК та iPhone, Android чи Samsung без кабелю, хмари й облікового запису."
+h1 = "AirDrop, Quick Share, LocalSend і AirPlay в одному застосунку – для Windows і Linux"
+lead = "Ваш ПК з'являється в меню «Поділитися» будь-якого телефона поруч. iPhone говорять AirDrop, Android і Samsung – Quick Share, решта – LocalSend. MultiDrop говорить усіма одразу."
+summary = "AirDrop, Quick Share, LocalSend і AirPlay в одному застосунку для Windows і Linux: надсилайте файли між ПК та iPhone, Android чи Samsung без кабелю, хмари й облікового запису."
+more = "Докладніше"
+download = "Завантажити для Windows"
+linux = "Встановити в Linux"
+source = "Вихідний код на GitHub"
+features_title = "Що вміє MultiDrop"
+features = [
+  "**Quick Share / Nearby Share** у Windows і Linux – телефони Android і Samsung надсилають на ПК з меню «Поділитися», без застосунків",
+  "**AirDrop у Linux** – надсилання й отримання з iPhone, iPad і Mac (підтримувана Wi-Fi-карта)",
+  "**З iPhone на Windows** – через безкоштовний LocalSend",
+  "**AirPlay** – трансляція екрана Windows чи Linux на Apple TV, звук ПК на HomePod і Sonos",
+  "**Приватно** – напряму між пристроями у вашій Wi-Fi-мережі, із шифруванням, без сервера й облікового запису",
+]
+apt_title = "Ubuntu і Debian"
+faq_title = "Питання"
+faq = [
+  ["Чи є AirDrop для Windows?", "Радіоканал AirDrop від Apple (AWDL) не працює з Wi-Fi-драйверами Windows. MultiDrop закриває решту: iPhone надсилає через безкоштовний LocalSend, Android і Samsung – через Quick Share, а ще є трансляція екрана AirPlay."],
+  ["Чи є AirDrop для Linux?", "Так. MultiDrop надсилає й отримує через AirDrop з iPhone, iPad і Mac у Linux, якщо Wi-Fi-карта це підтримує (наприклад, MediaTek MT7925)."],
+  ["Як передати файли з iPhone на ПК без кабелю?", "Запустіть MultiDrop на ПК і надішліть із безкоштовного LocalSend на iPhone."],
+  ["Чи можна користуватися Quick Share на ПК?", "Так. MultiDrop з'являється в меню Quick Share телефонів Android і Samsung у Windows і Linux, без облікового запису Google."],
+  ["MultiDrop безкоштовний і приватний?", "Так. Відкритий код (GPL-3.0), без сервера й облікового запису – файли йдуть напряму між вашими пристроями."],
+]
+footer = "AirDrop і AirPlay – торговельні марки Apple Inc., Quick Share – Google LLC і Samsung Electronics. MultiDrop – незалежний проєкт з відкритим кодом."
+languages = "Мови"
+
+[zh]
+name = "中文"
+flag = "🇨🇳"
+title = "MultiDrop – 适用于 Windows 和 Linux 的 AirDrop、Quick Share 与 AirPlay"
+description = "免费开源应用，为 Windows 和 Linux 带来 AirDrop、Quick Share、LocalSend 和 AirPlay。在电脑与 iPhone、安卓或三星手机之间传文件，无需数据线、云端或账号。"
+h1 = "AirDrop、Quick Share、LocalSend 和 AirPlay，一个应用全搞定 —— 支持 Windows 和 Linux"
+lead = "你的电脑会出现在身边每部手机的分享菜单里。iPhone 用 AirDrop，安卓和三星用 Quick Share，其他手机用 LocalSend —— MultiDrop 同时支持它们全部。"
+summary = "一个应用集成 AirDrop、Quick Share、LocalSend 和 AirPlay，支持 Windows 和 Linux：在电脑与 iPhone、安卓或三星手机之间传文件，无需数据线、云端或账号。"
+more = "了解更多"
+download = "下载 Windows 版"
+linux = "在 Linux 上安装"
+source = "GitHub 源代码"
+features_title = "MultiDrop 能做什么"
+features = [
+  "Windows 和 Linux 上的 **Quick Share / 附近分享** —— 安卓和三星手机直接从分享菜单发送到电脑，无需安装应用",
+  "**Linux 上的 AirDrop** —— 与 iPhone、iPad 和 Mac 互传（需支持的无线网卡）",
+  "**iPhone 传到 Windows** —— 使用免费的 LocalSend 应用",
+  "**AirPlay 投屏** —— 把 Windows 或 Linux 屏幕镜像到 Apple TV，把电脑声音播放到 HomePod 和 Sonos",
+  "**隐私安全** —— 设备之间通过 Wi-Fi 直连并加密，没有服务器，无需账号",
+]
+apt_title = "Ubuntu 和 Debian"
+faq_title = "常见问题"
+faq = [
+  ["Windows 上有 AirDrop 吗？", "苹果 AirDrop 使用的无线技术（AWDL）无法在 Windows 网卡驱动上运行。MultiDrop 解决其余一切：iPhone 通过免费的 LocalSend 应用发送，安卓和三星使用 Quick Share，另外还能 AirPlay 投屏。"],
+  ["Linux 上有 AirDrop 吗？", "有。只要无线网卡支持（例如 MediaTek MT7925），MultiDrop 就能在 Linux 上通过 AirDrop 与 iPhone、iPad 和 Mac 互传文件。"],
+  ["如何不用数据线把 iPhone 的文件传到电脑？", "在电脑上打开 MultiDrop，然后在 iPhone 上用免费的 LocalSend 发送。"],
+  ["电脑能用 Quick Share 吗？", "可以。在 Windows 和 Linux 上，MultiDrop 会出现在安卓和三星手机的 Quick Share 菜单中，无需 Google 账号。"],
+  ["MultiDrop 免费且保护隐私吗？", "是的。开源（GPL-3.0），没有服务器也无需账号，文件直接在你的设备之间传输。"],
+]
+footer = "AirDrop 和 AirPlay 是 Apple Inc. 的商标，Quick Share 是 Google LLC 和三星电子的商标。MultiDrop 是独立的开源项目。"
+languages = "语言"
+
+[ja]
+name = "日本語"
+flag = "🇯🇵"
+title = "MultiDrop – Windows・Linux 用の AirDrop、Quick Share、AirPlay"
+description = "Windows と Linux に AirDrop、Quick Share、LocalSend、AirPlay をまとめた無料のオープンソースアプリ。PC と iPhone、Android、Samsung の間でケーブル・クラウド・アカウントなしでファイルを送れます。"
+h1 = "AirDrop、Quick Share、LocalSend、AirPlay をひとつのアプリで ― Windows と Linux に"
+lead = "近くのどのスマホの共有メニューにも PC が表示されます。iPhone は AirDrop、Android と Samsung は Quick Share、その他は LocalSend ― MultiDrop はそのすべてに同時に対応します。"
+summary = "AirDrop、Quick Share、LocalSend、AirPlay をひとつにまとめた Windows・Linux 用アプリ。PC と iPhone、Android、Samsung の間でケーブルもクラウドもアカウントも不要でファイルを送れます。"
+more = "詳しく"
+download = "Windows 版をダウンロード"
+linux = "Linux にインストール"
+source = "GitHub のソースコード"
+features_title = "MultiDrop でできること"
+features = [
+  "Windows と Linux で **Quick Share / ニアバイシェア** ― Android と Samsung のスマホが共有メニューから PC に送信、アプリ不要",
+  "**Linux で AirDrop** ― iPhone、iPad、Mac と送受信（対応 Wi-Fi カードが必要）",
+  "**iPhone から Windows へ** ― 無料の LocalSend アプリで",
+  "**AirPlay** ― Windows や Linux の画面を Apple TV にミラーリング、PC の音を HomePod や Sonos で再生",
+  "**プライベート** ― Wi-Fi 上のデバイス同士で直接、暗号化、サーバーもアカウントも不要",
+]
+apt_title = "Ubuntu と Debian"
+faq_title = "よくある質問"
+faq = [
+  ["Windows で AirDrop は使えますか？", "Apple の AirDrop 用無線（AWDL）は Windows の Wi-Fi ドライバーでは動きません。MultiDrop がそれ以外をカバーします。iPhone は無料の LocalSend アプリで、Android と Samsung は Quick Share で送れ、さらに AirPlay の画面ミラーリングも使えます。"],
+  ["Linux で AirDrop は使えますか？", "はい。Wi-Fi カードが対応していれば（例：MediaTek MT7925）、MultiDrop は Linux で iPhone、iPad、Mac と AirDrop で送受信できます。"],
+  ["iPhone から PC へケーブルなしでファイルを送るには？", "PC で MultiDrop を起動し、iPhone の無料アプリ LocalSend から送ります。"],
+  ["PC で Quick Share は使えますか？", "はい。Windows と Linux で、MultiDrop は Android と Samsung の Quick Share メニューに表示されます。Google アカウントは不要です。"],
+  ["MultiDrop は無料でプライベートですか？", "はい。オープンソース（GPL-3.0）で、サーバーもアカウントもなく、ファイルはデバイス間で直接やり取りされます。"],
+]
+footer = "AirDrop と AirPlay は Apple Inc. の、Quick Share は Google LLC と Samsung Electronics の商標です。MultiDrop は独立したオープンソースプロジェクトです。"
+languages = "言語"
+
+[ko]
+name = "한국어"
+flag = "🇰🇷"
+title = "MultiDrop – Windows와 Linux용 AirDrop, Quick Share, AirPlay"
+description = "Windows와 Linux를 위한 AirDrop, Quick Share, LocalSend, AirPlay 무료 오픈소스 앱. 케이블, 클라우드, 계정 없이 PC와 iPhone, 안드로이드, 삼성 폰 사이에서 파일을 보내세요."
+h1 = "AirDrop, Quick Share, LocalSend, AirPlay를 하나의 앱으로 – Windows와 Linux용"
+lead = "주변 모든 폰의 공유 메뉴에 PC가 나타납니다. iPhone은 AirDrop, 안드로이드와 삼성은 Quick Share, 나머지는 LocalSend를 쓰죠. MultiDrop은 이 모두를 동시에 지원합니다."
+summary = "AirDrop, Quick Share, LocalSend, AirPlay를 하나로 담은 Windows·Linux 앱: 케이블, 클라우드, 계정 없이 PC와 iPhone, 안드로이드, 삼성 폰 사이에서 파일을 주고받으세요."
+more = "더 보기"
+download = "Windows용 다운로드"
+linux = "Linux에 설치"
+source = "GitHub 소스 코드"
+features_title = "MultiDrop으로 할 수 있는 것"
+features = [
+  "Windows와 Linux에서 **Quick Share / Nearby Share** – 안드로이드와 삼성 폰이 공유 메뉴에서 바로 PC로 전송, 앱 불필요",
+  "**Linux에서 AirDrop** – iPhone, iPad, Mac과 주고받기 (지원되는 Wi-Fi 카드 필요)",
+  "**iPhone에서 Windows로** – 무료 LocalSend 앱으로",
+  "**AirPlay** – Windows나 Linux 화면을 Apple TV로 미러링, PC 소리를 HomePod과 Sonos로 재생",
+  "**프라이버시** – Wi-Fi 안에서 기기 간 직접 전송, 암호화, 서버와 계정 없음",
+]
+apt_title = "Ubuntu와 Debian"
+faq_title = "자주 묻는 질문"
+faq = [
+  ["Windows에서 AirDrop을 쓸 수 있나요?", "Apple AirDrop의 무선 기술(AWDL)은 Windows Wi-Fi 드라이버에서 동작하지 않습니다. 나머지는 MultiDrop이 해결합니다. iPhone은 무료 LocalSend 앱으로, 안드로이드와 삼성은 Quick Share로 보내고, AirPlay 화면 미러링도 됩니다."],
+  ["Linux에서 AirDrop을 쓸 수 있나요?", "네. Wi-Fi 카드가 지원하면(예: MediaTek MT7925) MultiDrop은 Linux에서 iPhone, iPad, Mac과 AirDrop으로 주고받습니다."],
+  ["케이블 없이 iPhone에서 PC로 파일을 옮기려면?", "PC에서 MultiDrop을 실행한 뒤 iPhone의 무료 LocalSend 앱으로 보내세요."],
+  ["PC에서 Quick Share를 쓸 수 있나요?", "네. MultiDrop은 Windows와 Linux에서 안드로이드와 삼성 폰의 Quick Share 메뉴에 Google 계정 없이 나타납니다."],
+  ["MultiDrop은 무료이고 안전한가요?", "네. 오픈소스(GPL-3.0)이며 서버도 계정도 없고, 파일은 기기 사이에서 직접 전송됩니다."],
+]
+footer = "AirDrop과 AirPlay는 Apple Inc.의, Quick Share는 Google LLC와 Samsung Electronics의 상표입니다. MultiDrop은 독립 오픈소스 프로젝트입니다."
+languages = "언어"
+
+[hi]
+name = "हिन्दी"
+flag = "🇮🇳"
+title = "MultiDrop – Windows और Linux के लिए AirDrop, Quick Share और AirPlay"
+description = "Windows और Linux के लिए AirDrop, Quick Share, LocalSend और AirPlay वाला मुफ़्त, ओपन-सोर्स ऐप। PC और iPhone, Android या Samsung के बीच बिना केबल, क्लाउड या अकाउंट के फ़ाइलें भेजें।"
+h1 = "AirDrop, Quick Share, LocalSend और AirPlay एक ही ऐप में – Windows और Linux के लिए"
+lead = "आपका PC आसपास के हर फ़ोन के शेयर मेन्यू में दिखता है। iPhone AirDrop बोलते हैं, Android और Samsung Quick Share, बाकी LocalSend – MultiDrop सब एक साथ बोलता है।"
+summary = "Windows और Linux के लिए एक ही ऐप में AirDrop, Quick Share, LocalSend और AirPlay: PC और iPhone, Android या Samsung के बीच बिना केबल, क्लाउड या अकाउंट के फ़ाइलें भेजें।"
+more = "और जानें"
+download = "Windows के लिए डाउनलोड करें"
+linux = "Linux पर इंस्टॉल करें"
+source = "GitHub पर सोर्स कोड"
+features_title = "MultiDrop क्या करता है"
+features = [
+  "Windows और Linux पर **Quick Share / Nearby Share** – Android और Samsung फ़ोन शेयर मेन्यू से सीधे PC पर भेजते हैं, कोई ऐप नहीं चाहिए",
+  "**Linux पर AirDrop** – iPhone, iPad और Mac के साथ भेजें और पाएँ (समर्थित Wi-Fi कार्ड)",
+  "**iPhone से Windows पर** – मुफ़्त LocalSend ऐप से",
+  "**AirPlay** – Windows या Linux स्क्रीन को Apple TV पर मिरर करें, PC की आवाज़ HomePod और Sonos पर चलाएँ",
+  "**निजी** – आपके Wi-Fi पर डिवाइसों के बीच सीधे, एन्क्रिप्टेड, कोई सर्वर या अकाउंट नहीं",
+]
+apt_title = "Ubuntu और Debian"
+faq_title = "सवाल"
+faq = [
+  ["क्या Windows के लिए AirDrop है?", "Apple का AirDrop रेडियो (AWDL) Windows के Wi-Fi ड्राइवरों पर नहीं चलता। बाकी सब MultiDrop संभालता है: iPhone मुफ़्त LocalSend ऐप से भेजता है, Android और Samsung Quick Share से, और साथ में AirPlay स्क्रीन मिररिंग मिलती है।"],
+  ["क्या Linux के लिए AirDrop है?", "हाँ। अगर Wi-Fi कार्ड समर्थित है (जैसे MediaTek MT7925), तो MultiDrop Linux पर iPhone, iPad और Mac के साथ AirDrop से भेजता और पाता है।"],
+  ["बिना केबल iPhone से PC पर फ़ाइलें कैसे भेजें?", "PC पर MultiDrop चालू करें, फिर iPhone पर मुफ़्त LocalSend ऐप से भेजें।"],
+  ["क्या PC पर Quick Share इस्तेमाल कर सकते हैं?", "हाँ। Windows और Linux पर MultiDrop, Android और Samsung फ़ोन के Quick Share मेन्यू में बिना Google अकाउंट के दिखता है।"],
+  ["क्या MultiDrop मुफ़्त और निजी है?", "हाँ। यह ओपन सोर्स (GPL-3.0) है, कोई सर्वर या अकाउंट नहीं; फ़ाइलें सीधे आपके डिवाइसों के बीच जाती हैं।"],
+]
+footer = "AirDrop और AirPlay, Apple Inc. के ट्रेडमार्क हैं; Quick Share, Google LLC और Samsung Electronics का। MultiDrop एक स्वतंत्र ओपन-सोर्स प्रोजेक्ट है।"
+languages = "भाषाएँ"
+
+[ar]
+name = "العربية"
+flag = "🇸🇦"
+dir = "rtl"
+title = "MultiDrop – ‏AirDrop وQuick Share وAirPlay لنظامي Windows وLinux"
+description = "تطبيق مجاني ومفتوح المصدر يجمع AirDrop وQuick Share وLocalSend وAirPlay لنظامي Windows وLinux. أرسل الملفات بين الكمبيوتر وiPhone أو Android أو Samsung بلا كابل ولا سحابة ولا حساب."
+h1 = "‏AirDrop وQuick Share وLocalSend وAirPlay في تطبيق واحد – لنظامي Windows وLinux"
+lead = "يظهر حاسوبك في قائمة المشاركة لكل هاتف قريب. أجهزة iPhone تتحدث AirDrop، وأندرويد وسامسونج تتحدث Quick Share، والبقية تستخدم LocalSend – وMultiDrop يتحدثها جميعًا في آن واحد."
+summary = "‏AirDrop وQuick Share وLocalSend وAirPlay في تطبيق واحد لنظامي Windows وLinux: أرسل الملفات بين الكمبيوتر وiPhone أو Android أو Samsung بلا كابل ولا سحابة ولا حساب."
+more = "المزيد"
+download = "تنزيل لنظام Windows"
+linux = "التثبيت على Linux"
+source = "الشيفرة المصدرية على GitHub"
+features_title = "ماذا يفعل MultiDrop"
+features = [
+  "**Quick Share / Nearby Share** على Windows وLinux – ترسل هواتف أندرويد وسامسونج إلى الكمبيوتر من قائمة المشاركة دون أي تطبيق",
+  "**AirDrop على Linux** – إرسال واستقبال مع iPhone وiPad وMac (بطاقة Wi-Fi مدعومة)",
+  "**من iPhone إلى Windows** – عبر تطبيق LocalSend المجاني",
+  "**AirPlay** – اعرض شاشة Windows أو Linux على Apple TV وشغّل صوت الكمبيوتر على HomePod وSonos",
+  "**خصوصية** – مباشرة بين الأجهزة على شبكة Wi-Fi لديك، مشفّر، بلا خادم ولا حساب",
+]
+apt_title = "Ubuntu وDebian"
+faq_title = "أسئلة"
+faq = [
+  ["هل يوجد AirDrop لنظام Windows؟", "لا تعمل تقنية AirDrop اللاسلكية من Apple ‏(AWDL) مع تعريفات Wi-Fi في Windows. يتكفّل MultiDrop بالباقي: يرسل iPhone عبر تطبيق LocalSend المجاني، وأندرويد وسامسونج عبر Quick Share، إضافة إلى عرض الشاشة عبر AirPlay."],
+  ["هل يوجد AirDrop لنظام Linux؟", "نعم. يرسل MultiDrop ويستقبل عبر AirDrop مع iPhone وiPad وMac على Linux إذا كانت بطاقة Wi-Fi تدعم ذلك (مثل MediaTek MT7925)."],
+  ["كيف أنقل الملفات من iPhone إلى الكمبيوتر دون كابل؟", "شغّل MultiDrop على الكمبيوتر، ثم أرسل من تطبيق LocalSend المجاني على iPhone."],
+  ["هل يمكنني استخدام Quick Share على الكمبيوتر؟", "نعم. يظهر MultiDrop في قائمة Quick Share على هواتف أندرويد وسامسونج في Windows وLinux دون حساب Google."],
+  ["هل MultiDrop مجاني ويحافظ على الخصوصية؟", "نعم. مفتوح المصدر (GPL-3.0)، بلا خادم ولا حساب، والملفات تنتقل مباشرة بين أجهزتك."],
+]
+footer = "‏AirDrop وAirPlay علامتان تجاريتان لشركة Apple Inc.، وQuick Share لشركتي Google LLC وSamsung Electronics. ‏MultiDrop مشروع مستقل مفتوح المصدر."
+languages = "اللغات"
+
+[id]
+name = "Bahasa Indonesia"
+flag = "🇮🇩"
+title = "MultiDrop – AirDrop, Quick Share, dan AirPlay untuk Windows dan Linux"
+description = "Aplikasi gratis dan open source dengan AirDrop, Quick Share, LocalSend, dan AirPlay untuk Windows dan Linux. Kirim file antara PC dan iPhone, Android, atau Samsung tanpa kabel, cloud, atau akun."
+h1 = "AirDrop, Quick Share, LocalSend, dan AirPlay dalam satu aplikasi – untuk Windows dan Linux"
+lead = "PC kamu muncul di menu berbagi setiap ponsel di sekitar. iPhone memakai AirDrop, Android dan Samsung memakai Quick Share, sisanya LocalSend – MultiDrop mendukung semuanya sekaligus."
+summary = "AirDrop, Quick Share, LocalSend, dan AirPlay dalam satu aplikasi untuk Windows dan Linux: kirim file antara PC dan iPhone, Android, atau Samsung tanpa kabel, cloud, atau akun."
+more = "Selengkapnya"
+download = "Unduh untuk Windows"
+linux = "Pasang di Linux"
+source = "Kode sumber di GitHub"
+features_title = "Yang bisa dilakukan MultiDrop"
+features = [
+  "**Quick Share / Nearby Share** di Windows dan Linux – ponsel Android dan Samsung mengirim ke PC dari menu berbagi, tanpa aplikasi",
+  "**AirDrop di Linux** – kirim dan terima dengan iPhone, iPad, dan Mac (kartu Wi-Fi yang didukung)",
+  "**Dari iPhone ke Windows** – dengan aplikasi gratis LocalSend",
+  "**AirPlay** – mirror layar Windows atau Linux ke Apple TV, putar suara PC di HomePod dan Sonos",
+  "**Privat** – langsung antar perangkat di Wi-Fi kamu, terenkripsi, tanpa server dan akun",
+]
+apt_title = "Ubuntu dan Debian"
+faq_title = "Pertanyaan"
+faq = [
+  ["Apakah ada AirDrop untuk Windows?", "Radio AirDrop milik Apple (AWDL) tidak berjalan di driver Wi-Fi Windows. MultiDrop menangani sisanya: iPhone mengirim lewat aplikasi gratis LocalSend, Android dan Samsung lewat Quick Share, plus screen mirroring AirPlay."],
+  ["Apakah ada AirDrop untuk Linux?", "Ya. MultiDrop mengirim dan menerima lewat AirDrop dengan iPhone, iPad, dan Mac di Linux jika kartu Wi-Fi mendukung (misalnya MediaTek MT7925)."],
+  ["Bagaimana memindahkan file dari iPhone ke PC tanpa kabel?", "Jalankan MultiDrop di PC, lalu kirim dari aplikasi gratis LocalSend di iPhone."],
+  ["Bisakah saya memakai Quick Share di PC?", "Bisa. MultiDrop muncul di menu Quick Share ponsel Android dan Samsung di Windows dan Linux, tanpa akun Google."],
+  ["Apakah MultiDrop gratis dan privat?", "Ya. Open source (GPL-3.0), tanpa server dan akun; file berpindah langsung antar perangkatmu."],
+]
+footer = "AirDrop dan AirPlay adalah merek dagang Apple Inc., Quick Share milik Google LLC dan Samsung Electronics. MultiDrop adalah proyek open source independen."
+languages = "Bahasa"
+
+[vi]
+name = "Tiếng Việt"
+flag = "🇻🇳"
+title = "MultiDrop – AirDrop, Quick Share và AirPlay cho Windows và Linux"
+description = "Ứng dụng miễn phí, mã nguồn mở với AirDrop, Quick Share, LocalSend và AirPlay cho Windows và Linux. Gửi tệp giữa PC và iPhone, Android hoặc Samsung, không cần cáp, đám mây hay tài khoản."
+h1 = "AirDrop, Quick Share, LocalSend và AirPlay trong một ứng dụng – cho Windows và Linux"
+lead = "PC của bạn hiện trong menu chia sẻ của mọi điện thoại xung quanh. iPhone dùng AirDrop, Android và Samsung dùng Quick Share, còn lại dùng LocalSend – MultiDrop hỗ trợ tất cả cùng lúc."
+summary = "AirDrop, Quick Share, LocalSend và AirPlay trong một ứng dụng cho Windows và Linux: gửi tệp giữa PC và iPhone, Android hoặc Samsung, không cần cáp, đám mây hay tài khoản."
+more = "Xem thêm"
+download = "Tải cho Windows"
+linux = "Cài trên Linux"
+source = "Mã nguồn trên GitHub"
+features_title = "MultiDrop làm được gì"
+features = [
+  "**Quick Share / Nearby Share** trên Windows và Linux – điện thoại Android và Samsung gửi tới PC ngay từ menu chia sẻ, không cần ứng dụng",
+  "**AirDrop trên Linux** – gửi và nhận với iPhone, iPad và Mac (card Wi-Fi được hỗ trợ)",
+  "**Từ iPhone sang Windows** – bằng ứng dụng miễn phí LocalSend",
+  "**AirPlay** – phản chiếu màn hình Windows hoặc Linux lên Apple TV, phát âm thanh PC trên HomePod và Sonos",
+  "**Riêng tư** – trực tiếp giữa các thiết bị trong Wi-Fi của bạn, mã hóa, không máy chủ, không tài khoản",
+]
+apt_title = "Ubuntu và Debian"
+faq_title = "Câu hỏi"
+faq = [
+  ["Có AirDrop cho Windows không?", "Sóng AirDrop của Apple (AWDL) không chạy được trên driver Wi-Fi của Windows. MultiDrop lo phần còn lại: iPhone gửi qua ứng dụng miễn phí LocalSend, Android và Samsung qua Quick Share, kèm phản chiếu màn hình AirPlay."],
+  ["Có AirDrop cho Linux không?", "Có. MultiDrop gửi và nhận qua AirDrop với iPhone, iPad và Mac trên Linux nếu card Wi-Fi hỗ trợ (ví dụ MediaTek MT7925)."],
+  ["Làm sao chuyển tệp từ iPhone sang PC không cần cáp?", "Mở MultiDrop trên PC, rồi gửi từ ứng dụng miễn phí LocalSend trên iPhone."],
+  ["Có dùng Quick Share trên PC được không?", "Được. MultiDrop xuất hiện trong menu Quick Share của điện thoại Android và Samsung trên Windows và Linux, không cần tài khoản Google."],
+  ["MultiDrop có miễn phí và riêng tư không?", "Có. Mã nguồn mở (GPL-3.0), không máy chủ, không tài khoản; tệp đi thẳng giữa các thiết bị của bạn."],
+]
+footer = "AirDrop và AirPlay là nhãn hiệu của Apple Inc., Quick Share của Google LLC và Samsung Electronics. MultiDrop là dự án mã nguồn mở độc lập."
+languages = "Ngôn ngữ"

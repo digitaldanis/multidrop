@@ -89,7 +89,8 @@ def test_cli_both_protocols(tmp_path):
         receiver.terminate()
         out, _ = receiver.communicate(timeout=20)
         print(out)
-    assert receiver.returncode == 0
+    if os.name != "nt":        # terminate() is TerminateProcess there: exit code 1
+        assert receiver.returncode == 0
     assert (inbox / "Bericht.pdf").read_bytes() == src.read_bytes()
     assert (inbox / "foto.jpg").read_bytes() == photo.read_bytes()
     assert "url from alice:\nhttps://example.org/x" in out

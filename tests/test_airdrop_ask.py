@@ -11,7 +11,7 @@ from multidrop.backends.airdrop.server import AirDropServer
 from multidrop.backends.localsend.identity import Identity
 from multidrop.daemon.service import PendingOffer
 
-from test_airdrop_loopback import REG, Events, accept_all, odc
+from test_airdrop_loopback import REG, Events, odc
 
 
 def test_build_ask(tmp_path):

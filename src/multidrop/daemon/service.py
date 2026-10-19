@@ -91,6 +91,7 @@ class Daemon:
         self._tasks: set[asyncio.Task] = set()
         self._job_tasks: dict[str, asyncio.Task] = {}
         self.share = None                  # running WebShare, if any
+        self.selection: list[str] = []     # files handed over to send from the UI
         self._share_cleanup: Path | None = None
 
     # -- lifecycle --------------------------------------------------------
@@ -132,6 +133,15 @@ class Daemon:
                 "accept": self.config.daemon.accept,
                 "prefer": self.config.prefer,
                 "protocols": {n: {"port": b.port} for n, b in self.backends.items()}}
+
+    def select(self, paths: list[Path]) -> None:
+        """Add files to send (Windows Explorer's "Send to"); the UI picks the device."""
+        self.selection += [str(p) for p in paths if str(p) not in self.selection]
+        self.emit("selection", count=len(self.selection))
+
+    def clear_selection(self) -> None:
+        self.selection.clear()
+        self.emit("selection", count=0)
 
     # -- history file -----------------------------------------------------
 
@@ -449,7 +459,7 @@ class Daemon:
 
     async def start_share(self, paths: list[Path], pin: str | None = "",
                           minutes: float = 15, cleanup: Path | None = None,
-                          address: str | None = None) -> dict:
+                          address: str | None = None, https: bool = False) -> dict:
         """Share files for download in a browser; replaces a running share."""
         from multidrop.backends.localsend.webshare import WebShare
         from multidrop.backends.quickshare.qr import svg_qr
@@ -458,7 +468,7 @@ class Daemon:
             share = WebShare(paths, alias=self.config.alias, pin=pin, minutes=minutes,
                              port=self.config.localsend.share_port,
                              host=self.config.localsend.share_bind,
-                             public_address=address,
+                             public_address=address, https=https,
                              on_event=lambda e, d: self._share_event(share, e, d))
             await share.start()
         except BaseException:
@@ -486,7 +496,7 @@ class Daemon:
             if self._share_cleanup:
                 shutil.rmtree(self._share_cleanup, ignore_errors=True)
                 self._share_cleanup = None
-        if event == "share_started":
+        if event in ("share_started", "share_moved"):
             d = {k: v for k, v in d.items() if k != "pin"}   # PIN only via API
         self.emit(event, protocol="localsend", **{k: _jsonable(v) for k, v in d.items()})
 

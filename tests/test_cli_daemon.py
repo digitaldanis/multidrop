@@ -52,8 +52,8 @@ def setup(tmp_path):
     pc_ls, pc_qs, bob_ls, bob_qs = free_port(), free_port(), free_port(), free_port()
     cfg = tmp_path / "pc.toml"
     cfg.write_text(f'''alias = "pc"
-download_dir = "{tmp_path / 'pc-in'}"
-state_dir = "{tmp_path / 'pc-state'}"
+download_dir = "{(tmp_path / 'pc-in').as_posix()}"
+state_dir = "{(tmp_path / 'pc-state').as_posix()}"
 [localsend]
 port = {pc_ls}
 bind = "127.0.0.1"
@@ -87,8 +87,8 @@ notifications = false
                            env=bob_env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                            text=True)
     try:
-        sock = tmp_path / "rt-pc" / "multidrop" / "multidropd.sock"
-        _wait_for(lambda: sock.exists() and _port_open(pc_qs))
+        url = tmp_path / "rt-pc" / "multidrop" / "url"     # written once the API is up
+        _wait_for(lambda: url.exists() and _port_open(pc_qs))
         _wait_for(lambda: _port_open(bob_ls) and _port_open(bob_qs))
         yield dict(tmp=tmp_path, pc_env=pc_env, bob_env=bob_env, bob_args=bob_args,
                    pc_ls=pc_ls, pc_qs=pc_qs, bob_qs=bob_qs)

@@ -58,8 +58,24 @@ safety rules for AirDrop, Quick Share and LocalSend.
   bubbles with drag and drop, AirDrop sessions, AirPlay mirroring and audio.
   Fallbacks for GTK ≥ 4.6 / libadwaita ≥ 1.1.
 - **Windows app** (`windows.py`): the service on a thread, a pystray tray icon,
-  the web UI in the browser, Windows notifications for incoming offers. Built
-  into `MultiDrop.exe` with PyInstaller by GitHub Actions.
+  the web UI in its own window (`win_window.py`, Edge WebView2 via pywebview;
+  the page gets settings, AirPlay audio and a first-start welcome through
+  `window.pywebview.api`; browser as fallback), Windows notifications for incoming offers.
+  `winshell.py`: per-user autostart (HKCU Run key) and the Explorer "Send to"
+  shortcut; a second start with files hands them to the running instance
+  (`/api/selection`), where the UI sends them on a click. The CLI reaches the
+  service over 127.0.0.1 with the token (no Unix socket on Windows).
+  AirPlay audio: `raop.py` speaks RAOP (AirPlay 1) itself, `win_audio.py`
+  records the default output with WASAPI loopback (window or tray *Play audio
+  on*). Screen mirroring: `win_mirror.py` runs doubletake's Windows build
+  (`packaging/windows/doubletake/windows-support.patch`: d3d11 desktop capture,
+  Quick Sync/AMF/NVENC/Media Foundation encoders, WASAPI loopback audio) from
+  `{app}\mirror` with a private, trimmed GStreamer
+  (`packaging/windows/make_mirror_pack.py`). Python has no AF_UNIX on Windows,
+  so doubletake listens on loopback TCP and publishes address and token in an
+  owner-only control file; every request carries the token. Built into `MultiDrop.exe` with PyInstaller by GitHub Actions, and into
+  the per-user installer `MultiDrop-Setup.exe` with Inno Setup
+  (`packaging/windows/multidrop.iss`, checked by `test-installer.ps1`).
 - Configuration: `~/.config/multidrop/config.toml`; downloads to
   `~/Downloads/multidrop`; keys and identities under
   `~/.local/share/multidrop/<protocol>/` (mode 0600).
@@ -99,7 +115,7 @@ License: **GPL-3.0-or-later** – code from opendrop (GPL-3) and omdrop-plugin
 | omdrop-plugin | basis of the AirDrop backend (MIT, attributed) |
 | opendrop | reference for sending via AirDrop |
 | omdrop-owl | radio backend contract `omdrop-discoverable start/stop/status/peers/probe`, used as installed |
-| doubletake | AirPlay mirroring engine, driven over its daemon socket |
+| doubletake | AirPlay mirroring engine, driven over its daemon socket; Windows build from a patch in `packaging/windows/doubletake/` |
 
 ## Privileged part (AWDL), kept separate
 
@@ -121,7 +137,10 @@ src/multidrop/
   cli.py, cli_daemon.py   multidrop devices|send|receive|share|info|ui|airdrop
   daemon/                 multidropd: service.py, api.py, client.py, notify.py, web/
   desktop.py              Linux desktop app (GTK 4, tray, AirDrop, AirPlay)
-  windows.py              Windows tray app
+  windows.py              Windows app (service, tray icon)
+  win_window.py           Windows app window (WebView2) and its desktop API
+  winshell.py             Windows autostart and Explorer "Send to"
+  raop.py, win_audio.py   AirPlay audio sender (RAOP) and Windows loopback capture
   airdrop_radio.py        timed AirDrop sessions with omdrop-owl
   wifi_channel.py         temporary Wi-Fi channel move for AirDrop
   airplay_scan.py         AirPlay receiver capabilities from mDNS (features bits)
@@ -133,9 +152,10 @@ tools/
   install-desktop.sh      Linux install (venv, launcher, autostart, file managers)
   fetch-doubletake.sh     pinned doubletake download (SHA-256) or source build
   build-omdrop-owl.sh     omdrop-owl .deb without root
-  dev/                    gen_proto.sh, rquickshare/LocalSend interop, UI smoke test
+  dev/                    gen_proto.sh, rquickshare/LocalSend interop, UI smoke test,
+                          Windows click test (win_click_test.py, run_on_hidden_desktop.py)
 data/                     icons (SVG, PNG, ICO), systemd user unit
-packaging/windows/        PyInstaller entry point
+packaging/windows/        PyInstaller entry point, Inno Setup installer and its test
 tests/                    unit, loopback, interop and CLI tests
 ```
 

@@ -1,8 +1,13 @@
+import os
 import socket
 
+import aiohttp
 import pytest
 
 from multidrop.config import Config
+
+WINDOWS = os.name == "nt"
+posix_only = pytest.mark.skipif(WINDOWS, reason="POSIX only (Unix socket, modes, signals)")
 
 
 def free_port(kind=socket.SOCK_STREAM) -> int:
@@ -38,3 +43,16 @@ def make_config(tmp_path):
         return cfg
 
     return make
+
+
+def api_session(cfg: Config) -> aiohttp.ClientSession:
+    """Session on the daemon's local API: the Unix socket, on Windows
+    127.0.0.1 with the token from the url file."""
+    from multidrop.daemon import socket_path
+    from multidrop.daemon.api import TOKEN_HEADER
+    sock = socket_path(cfg)
+    if WINDOWS:
+        base, _, token = (sock.parent / "url").read_text().strip().partition("/#t=")
+        return aiohttp.ClientSession(base.rstrip("/"), headers={TOKEN_HEADER: token})
+    return aiohttp.ClientSession("http://localhost",
+                                 connector=aiohttp.UnixConnector(str(sock)))

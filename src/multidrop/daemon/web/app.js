@@ -8,9 +8,10 @@ let token = "";
 let groups = [];
 let lastSeq = 0;
 const jobs = new Map();          // job id -> {info, files: Map(name -> {done,size}), state}
-const resend = new Map();        // job id -> {target, files, text, label}, for a retry with PIN
+const resend = new Map();        // job id -> {target, files|paths|text, label}, for a retry with PIN
 const manual = [];               // targets added by address
 const unchecked = new Map();     // offer id -> Set of file ids the user unticked
+let selection = [];              // local paths handed over (Explorer "Send to")
 
 function el(tag, attrs = {}, ...children) {
   const e = document.createElement(tag);
@@ -45,9 +46,11 @@ async function loadStatus() {
   const s = await api("/api/status");
   const ports = Object.entries(s.protocols)
     .map(([p, v]) => `${PROTO[p] || p} ${v.port}`).join(" · ");
-  $("#status").textContent =
-    `visible as “${s.alias}” · ${ports} · saves to ${s.download_dir}` +
+  // Plain status; the technical details stay in the tooltip.
+  $("#status").textContent = `Ready – visible as “${s.alias}”` +
     (s.accept === "all" ? " · accepts everything" : "");
+  $("#status").title = `${ports} · saves to ${s.download_dir}`;
+  document.querySelectorAll(".alias").forEach((e) => { e.textContent = `“${s.alias}”`; });
 }
 
 const PARTIAL_NOTE = {
@@ -136,7 +139,8 @@ function renderDevices() {
       el("div", { class: "meta" }, g.type ? `${g.type} · ` : "", `${chosen.address}`),
       g.targets.length > 1 ? protoSel
         : el("span", { class: "badge" }, PROTO[chosen.protocol] || chosen.protocol));
-    makeDropTarget(card, (files) => upload(targetOf(chosen), files, g.name));
+    makeDropTarget(card, (files) => upload(targetOf(chosen), files, g.name),
+                   () => sendPaths(targetOf(chosen), selection, g.name));
     box.append(card);
     g.targets.forEach((t) => select.append(el("option", { value: JSON.stringify(targetOf(t)) },
       `${g.name} (${PROTO[t.protocol] || t.protocol})`)));
@@ -150,7 +154,8 @@ function targetOf(t) {
   return t.key ? { key: t.key } : { protocol: t.protocol, address: t.address, port: t.port };
 }
 
-function makeDropTarget(card, onFiles) {
+// onSelection: what a click does while handed-over files are waiting.
+function makeDropTarget(card, onFiles, onSelection) {
   card.addEventListener("dragover", (ev) => { ev.preventDefault(); card.classList.add("over"); });
   card.addEventListener("dragleave", () => card.classList.remove("over"));
   card.addEventListener("drop", async (ev) => {
@@ -161,6 +166,7 @@ function makeDropTarget(card, onFiles) {
   });
   card.addEventListener("click", (ev) => {
     if (ev.target.closest("[data-stop], label")) return;   // controls inside the card
+    if (selection.length && onSelection) { onSelection(); return; }
     const input = $("#pick-files");
     input.value = "";
     input.onchange = () => {
@@ -211,6 +217,18 @@ async function upload(target, files, label, pin) {
   }
 }
 
+async function sendPaths(target, paths, label, pin) {
+  addLog(`Handing over ${paths.length} item(s) to ${label} …`);
+  try {
+    const { job } = await api("/api/send", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ target, paths, pin: pin || null }) });
+    remember(job, { target, paths, label });
+    if (paths === selection) await clearSelection();
+  } catch (e) {
+    addLog(`Sending to ${label} failed: ${e.message}`);
+  }
+}
+
 async function sendText(target, text, label, pin) {
   const { job } = await api("/api/send", { method: "POST", headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ target, text, pin: pin || null }) });
@@ -235,6 +253,7 @@ function retryWithPin(id, pin) {
   if (!w || !pin) return;
   resend.delete(id);
   if (w.files) upload(w.target, w.files, w.label, pin);
+  else if (w.paths) sendPaths(w.target, w.paths, w.label, pin);
   else sendText(w.target, w.text, w.label, pin).catch((e) => addLog(`Sending failed: ${e.message}`));
 }
 
@@ -244,6 +263,7 @@ async function startShare(files) {
   const form = new FormData();
   form.append("minutes", $("#share-minutes").value);
   if ($("#share-nopin").checked) form.append("no_pin", "1");
+  if ($("#share-https").checked) form.append("https", "1");
   for (const f of files) {
     form.append("path", f.path);
     form.append("file", f.file, f.file.name);
@@ -253,6 +273,32 @@ async function startShare(files) {
   } catch (e) {
     addLog(`Sharing failed: ${e.message}`);
   }
+}
+
+async function shareSelection() {
+  try {
+    showShare(await api("/api/share", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paths: selection, minutes: +$("#share-minutes").value,
+                             no_pin: $("#share-nopin").checked,
+                             https: $("#share-https").checked }) }));
+    await clearSelection();
+  } catch (e) {
+    addLog(`Sharing failed: ${e.message}`);
+  }
+}
+
+// -- files handed over by the desktop (Explorer "Send to") ------------------
+
+async function loadSelection() {
+  selection = (await api("/api/selection")).paths;
+  $("#selection").replaceChildren(...selection.map((p) =>
+    el("li", { title: p }, p.split(/[\\/]/).pop())));
+  $("#selection-section").hidden = !selection.length;
+}
+
+async function clearSelection() {
+  await api("/api/selection", { method: "DELETE" });
+  await loadSelection();
 }
 
 function showShare(s) {
@@ -265,6 +311,9 @@ function showShare(s) {
   $("#share-url").href = s.url;
   $("#share-pin-row").hidden = !s.pin;
   $("#share-pin").textContent = s.pin || "";
+  $("#share-tls-hint").hidden = !s.url.startsWith("https:");
+  // iPhone hotspots always use 172.20.10.0/28; the hotspot iPhone cannot reach its clients.
+  $("#share-hotspot").hidden = !/^https?:\/\/172\.20\.10\./.test(s.url);
   const until = new Date(s.expires * 1000).toLocaleTimeString();
   $("#share-info").textContent =
     `${s.files.length} file(s), ${human(s.size)} · until ${until} · ${s.downloads} download(s)`;
@@ -357,6 +406,7 @@ const LOG_TEXT = {
   share_download: (e) => `${e.from} is downloading ${e.file}`,
   share_wrong_pin: (e) => `wrong PIN from ${e.from}`,
   share_stopped: (e) => `browser download ended (${e.reason}, ${e.downloads} download(s))`,
+  share_moved: (e) => `browser download moved to the new network: ${e.url}`,
 };
 
 function addLog(text, time, old) {
@@ -377,7 +427,8 @@ function connect() {
     if (ev.job) onJobEvent(ev);
     else if (ev.event === "job_started") onJobEvent(ev);
     if (ev.event.startsWith("offer")) loadOffers().catch(() => {});
-    if (ev.event === "share_download" || ev.event === "share_stopped") {
+    if (ev.event === "selection") loadSelection().catch(() => {});
+    if (["share_download", "share_stopped", "share_moved"].includes(ev.event)) {
       api("/api/share").then(showShare).catch(() => {});
     }
     const text = LOG_TEXT[ev.event];
@@ -390,6 +441,136 @@ function connect() {
   };
 }
 
+// -- app window on Windows: window.pywebview.api (win_window.DesktopApi) -------
+
+function showNetwork(n) {
+  $("#network").hidden = n.ok;
+}
+
+async function initNetwork(d) {
+  const refresh = () => d.network().then(showNetwork).catch(() => {});
+  $("#network-allow").onclick = async () => {
+    $("#network-status").textContent = "Waiting for Windows …";
+    try {
+      const n = await d.allow_network();
+      showNetwork(n);
+      $("#network-status").textContent = n.ok ? "" : "That did not work – Windows said no.";
+    } catch (e) {
+      $("#network-status").textContent = String(e.message || e);
+    }
+  };
+  await refresh();
+  // Another Wi-Fi, or the first-start prompt answered (each check runs PowerShell).
+  setInterval(() => { if (!document.hidden) refresh(); }, 30000);
+}
+
+const desktop = () => window.pywebview && window.pywebview.api;
+
+async function initDesktop() {
+  const d = desktop();
+  const s = await d.settings();
+  $("#welcome").hidden = !s.welcome;
+  $("#welcome-ok").onclick = () => { $("#welcome").hidden = true; d.welcome_done(); };
+  $("#set-autostart").checked = s.autostart;
+  $("#set-sendto").checked = s.sendto;
+  for (const [id, fn] of [["#set-autostart", "set_autostart"], ["#set-sendto", "set_sendto"]]) {
+    $(id).onchange = (ev) => d[fn](ev.target.checked).catch((e) => {
+      ev.target.checked = !ev.target.checked;
+      addLog(`Could not change the setting: ${e.message || e}`);
+    });
+  }
+  $("#open-downloads").onclick = () => d.open_downloads();
+  initNetwork(d);
+  $("#desktop-settings").hidden = false;
+  if (s.mirror) initMirror(d);
+  if (!s.audio) return;
+  $("#desktop-audio").hidden = false;
+  const run = (p) => p.then(showSpeakers).catch((e) => {
+    $("#speaker-status").textContent = String(e.message || e);
+  });
+  $("#speaker-play").onclick = () => {
+    $("#speaker-status").textContent = "Connecting …";
+    run(d.play_on($("#speaker").value));
+  };
+  $("#speaker-stop").onclick = () => run(d.stop_audio());
+  $("#speaker-search").onclick = () => {
+    $("#speaker-status").textContent = "Searching …";
+    run(d.search_speakers());
+  };
+  $("#speaker-volume").onchange = (ev) => run(d.set_volume(ev.target.value / 100));
+  const sp = await d.speakers();
+  showSpeakers(sp);
+  if (!sp.list.length) $("#speaker-search").click();
+}
+
+function showSpeakers(sp) {
+  const sel = $("#speaker");
+  const chosen = sp.current || sel.value;
+  sel.replaceChildren(...sp.list.map((r) => el("option",
+    r.supported ? { value: r.name } : { value: r.name, disabled: "" },
+    r.supported ? r.name : `${r.name} (not supported)`)));
+  if (chosen) sel.value = chosen;
+  $("#speaker-volume").value = Math.round(sp.volume * 100);
+  $("#speaker-stop").hidden = !sp.current;
+  $("#speaker-play").disabled = !sp.list.some((r) => r.supported);
+  $("#speaker-status").textContent = sp.current ? `Playing on ${sp.current}`
+    : sp.list.length ? "" : "No speakers found. They must be on the same Wi-Fi.";
+}
+
+const STREAM_STATE = { streaming: "mirroring", connecting: "connecting …",
+                       pin_required: "waiting for the code" };
+let pinFor = null;                // IP of the TV whose code or password is asked for
+
+function initMirror(d) {
+  $("#desktop-mirror").hidden = false;
+  const run = (p) => p.then(showScreens).catch((e) => {
+    $("#mirror-status").textContent = String(e.message || e);
+  });
+  $("#mirror-start").onclick = () => {
+    const opt = $("#screen").selectedOptions[0];
+    if (!opt) return;
+    $("#mirror-status").textContent = "Connecting …";
+    run(d.mirror_to(opt.value, +opt.dataset.port || null));
+  };
+  $("#mirror-pin").onsubmit = (ev) => {
+    ev.preventDefault();
+    const code = $("#mirror-code").value;
+    $("#mirror-code").value = "";
+    run(d.mirror_pin(pinFor, code));
+  };
+  const poll = () => {
+    if (document.visibilityState === "visible") run(d.screens());
+  };
+  poll();
+  setInterval(poll, 2000);
+}
+
+function showScreens(m) {
+  const sel = $("#screen");
+  const chosen = sel.value;
+  sel.replaceChildren(...m.screens.map((s) => el("option", { value: s.ip, "data-port": s.port || "" },
+    s.model ? `${s.name} (${s.model})` : s.name)));
+  if (chosen) sel.value = chosen;
+  $("#mirror-start").disabled = !m.screens.length;
+  $("#mirror-streams").replaceChildren(...m.streams.map((s) => el("li", {},
+    `${s.device}: ${STREAM_STATE[s.state] || s.state} `,
+    el("button", { type: "button", class: "danger", onclick: () => {
+      window.pywebview.api.stop_mirror(s.ip).then(showScreens).catch(() => {});
+    } }, "Stop"))));
+  const waiting = m.streams.find((s) => s.state === "pin_required");
+  pinFor = waiting ? waiting.ip : null;
+  $("#mirror-pin").hidden = !waiting;
+  if (waiting) {
+    const password = waiting.credential === "password";
+    $("#mirror-pin-label").textContent = password
+      ? `Password of ${waiting.device}` : `Code shown on ${waiting.device}`;
+    $("#mirror-code").type = password ? "password" : "text";
+    $("#mirror-code").inputMode = password ? "text" : "numeric";
+  }
+  $("#mirror-status").textContent = m.error
+    || (m.screens.length ? "" : "Looking for Apple TVs and AirPlay TVs on your Wi-Fi …");
+}
+
 function init() {
   const m = location.hash.match(/t=([^&]+)/);
   token = m ? decodeURIComponent(m[1]) : sessionStorage.getItem("multidrop-token") || "";
@@ -398,8 +579,10 @@ function init() {
   history.replaceState(null, "", location.pathname);   // token out of the address bar
 
   $("#refresh").addEventListener("click", () => loadDevices(true));
-  makeDropTarget($("#qr-card"), (files) => upload({ qr: true }, files, "QR code"));
-  makeDropTarget($("#share-card"), startShare);
+  makeDropTarget($("#qr-card"), (files) => upload({ qr: true }, files, "QR code"),
+                 () => sendPaths({ qr: true }, selection, "QR code"));
+  makeDropTarget($("#share-card"), startShare, shareSelection);
+  $("#selection-clear").addEventListener("click", () => clearSelection().catch(() => {}));
   $("#share-stop").addEventListener("click", () =>
     api("/api/share", { method: "DELETE" }).catch(() => {}).finally(() => showShare(null)));
   api("/api/share").then(showShare).catch(() => {});
@@ -425,6 +608,9 @@ function init() {
 
   loadStatus().catch((e) => { $("#status").textContent = `Error: ${e.message}`; });
   loadOffers().catch(() => {});
+  loadSelection().catch(() => {});
+  if (desktop()) initDesktop().catch(() => {});
+  else window.addEventListener("pywebviewready", () => initDesktop().catch(() => {}), { once: true });
   loadDevices(false);
   renderJobs();
   connect();

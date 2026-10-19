@@ -14,7 +14,7 @@ import os
 import re
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 
 
 @dataclass
@@ -70,21 +70,31 @@ class TransferError(Exception):
 
 
 _UNSAFE = re.compile(r"[\x00-\x1f\x7f]")
+# Not allowed in Windows file names; ":" would also make "C:x" a drive path
+# or "a.txt:x" an NTFS stream, so it goes everywhere.
+_NOT_ON_WINDOWS = re.compile(r'[<>:"|?*]')
+_WINDOWS_DEVICES = {"CON", "PRN", "AUX", "NUL", *(f"COM{i}" for i in range(10)),
+                    *(f"LPT{i}" for i in range(10))}
 
 
 def safe_relative_path(name: str) -> Path:
     """Turn a peer-supplied file name into a safe relative path.
 
     Folder transfers send names like "dir/sub/file.txt", which are kept as
-    subdirectories. Absolute paths, "..", empty parts and control characters
-    are removed so the result can never leave the download directory.
+    subdirectories. Absolute paths (also "//x" and Windows drives or shares),
+    "..", empty parts and control characters are removed so the result can
+    never leave the download directory, and every part is a valid Windows
+    file name.
     """
-    name = name.replace("\\", "/")
     parts = []
-    for part in PurePosixPath(name).parts:
-        part = _UNSAFE.sub("", part).strip()
-        if part in ("", ".", "..", "/"):
+    # Split by hand: PurePosixPath keeps a leading "//" as the root part.
+    for part in re.split(r"[/\\]", name):
+        part = _NOT_ON_WINDOWS.sub("_", _UNSAFE.sub("", part)).strip()
+        part = part.rstrip(". ")            # Windows drops these; ".." becomes ""
+        if not part:
             continue
+        if part.split(".")[0].upper() in _WINDOWS_DEVICES:
+            part = "_" + part
         parts.append(part[:255])
     if not parts:
         parts = ["unnamed"]

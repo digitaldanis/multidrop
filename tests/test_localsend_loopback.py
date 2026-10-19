@@ -1,6 +1,5 @@
 """Two LocalSend instances on 127.0.0.1 talking to each other."""
 
-import asyncio
 import hashlib
 import os
 

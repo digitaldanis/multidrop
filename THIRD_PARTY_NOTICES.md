@@ -43,6 +43,20 @@ The `.proto` files in `src/multidrop/backends/quickshare/proto/` were collected 
 (<https://www.apache.org/licenses/LICENSE-2.0>). The generated `pb/*_pb2.py`
 files are derived from them.
 
+### wireweave (MIT) – web edition transport
+
+The web edition in `pages/` loads [wireweave](https://github.com/AnEntrypoint/wireweave)
+from the `pages/vendor/wireweave` submodule (pinned to a commit) for nostr
+presence, WebRTC signalling and encrypted relay messages. It also loads
+nostr-tools (MIT), xstate (MIT) and qrcode-generator (MIT) from esm.sh at
+pinned versions.
+
+```
+MIT License
+
+Copyright (c) 2026 AnEntrypoint
+```
+
 ## Used as reference only (no code copied)
 
 [OpenDrop](https://github.com/seemoo-lab/opendrop) (GPL-3.0),
@@ -67,6 +81,18 @@ python-zeroconf (LGPL-2.1-or-later), segno (BSD-3-Clause), pystray (LGPL-3.0),
 Pillow (MIT-CMU), PyInstaller bootloader (GPL-2.0 with bootloader exception).
 Their license texts are available from the respective projects; the complete
 source of MultiDrop is in this repository.
+
+## Bundled in MultiDrop-Setup.exe for screen mirroring (`{app}\mirror`)
+
+- [doubletake](https://github.com/omarroth/doubletake) (LGPL-3.0-or-later),
+  built from release v0.5.0 with MultiDrop's
+  `packaging/windows/doubletake/windows-support.patch`; its license files are
+  installed next to it. It runs as its own process.
+- [GStreamer](https://gstreamer.freedesktop.org/) 1.28 runtime, a subset of the
+  official MSVC build: GStreamer and its plugins (LGPL-2.1-or-later), GLib
+  (LGPL-2.1-or-later), x264 (GPL-2.0-or-later), OpenH264 (BSD-2-Clause) and the
+  libraries they link. Sources: <https://gstreamer.freedesktop.org/src/> and
+  the [cerbero](https://gitlab.freedesktop.org/gstreamer/cerbero) build recipes.
 
 ## Bundled in the .deb package
 

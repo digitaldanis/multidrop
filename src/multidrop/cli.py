@@ -17,7 +17,7 @@ from pathlib import Path
 
 from multidrop import __version__
 from multidrop.backends import PROTOCOLS, create_backends
-from multidrop.config import Config
+from multidrop.config import WINDOWS, Config
 from multidrop.core import Backend, Device, IncomingOffer, TransferError
 
 
@@ -504,7 +504,18 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _utf8_output() -> None:
+    """Windows pipes default to the ANSI code page, which can't encode the
+    terminal QR code and crashes the command."""
+    for stream in (sys.stdout, sys.stderr):
+        if (stream is not None and hasattr(stream, "reconfigure")
+                and (stream.encoding or "").lower().replace("-", "") != "utf8"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
+
 def main(argv: list[str] | None = None) -> int:
+    if WINDOWS:
+        _utf8_output()
     args = build_parser().parse_args(argv)
     logging.basicConfig(level=logging.DEBUG if args.verbose else logging.WARNING,
                         format="%(levelname)s %(name)s: %(message)s")

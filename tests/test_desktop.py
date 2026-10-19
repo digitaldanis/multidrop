@@ -13,6 +13,8 @@ import pytest
 
 from multidrop import desktop
 
+pytestmark = pytest.mark.skipif(sys.platform != "linux", reason="GTK desktop app is Linux only")
+
 
 def test_daemon_pid_needs_a_live_socket(tmp_path):
     sock = tmp_path / "multidropd.sock"

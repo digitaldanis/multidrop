@@ -9,8 +9,7 @@ import pytest
 from multidrop.backends.quickshare import QuickShareBackend, connection, frames, outbound
 from multidrop.backends.quickshare.crypto import Ukey2Client
 from multidrop.backends.quickshare.mdns import MdnsPublisher, browse
-from multidrop.backends.quickshare.pb import (offline_wire_formats_pb2 as ow,
-                                              ukey_pb2)
+from multidrop.backends.quickshare.pb import ukey_pb2
 from multidrop.core import TransferError
 
 
@@ -266,6 +265,7 @@ def test_endpoint_info_and_names():
 
 
 def test_ble_service_data_format():
+    pytest.importorskip("dbus_fast")      # BlueZ over D-Bus, Linux only
     from multidrop.backends.quickshare import ble
     data = ble.service_data()
     # NearDrop PROTOCOL.md / rquickshare: fc128e0142, 9 zero bytes, 10 random bytes.

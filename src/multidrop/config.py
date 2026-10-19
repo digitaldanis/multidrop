@@ -41,11 +41,13 @@ WINDOWS = os.name == "nt"
 
 
 def runtime_dir() -> Path:
-    """Per-user directory for the daemon socket and the web UI URL (mode 0700)."""
-    if WINDOWS:
+    """Per-user directory for the daemon socket and the web UI URL (mode 0700).
+    $XDG_RUNTIME_DIR wins everywhere, like the other XDG paths."""
+    base = os.environ.get("XDG_RUNTIME_DIR")
+    if WINDOWS and not base:
         base = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
         return Path(base) / "multidrop" / "run"
-    base = os.environ.get("XDG_RUNTIME_DIR") or f"/tmp/multidrop-{os.getuid()}"
+    base = base or f"/tmp/multidrop-{os.getuid()}"
     return Path(base) / "multidrop"
 
 

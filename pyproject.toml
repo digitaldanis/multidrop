@@ -4,10 +4,26 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "multidrop"
-version = "0.1.1"
-description = "Nearby sharing for Linux and Windows: AirDrop, Quick Share, LocalSend, AirPlay"
+version = "0.2.0"
+description = "AirDrop, Quick Share, LocalSend and AirPlay in one app for Windows and Linux"
 requires-python = ">=3.11"
+readme = "README.md"
 license = "GPL-3.0-or-later"
+keywords = ["airdrop", "airdrop-linux", "airdrop-windows", "quick-share", "nearby-share",
+            "localsend", "airplay", "screen-mirroring", "file-transfer", "file-sharing",
+            "iphone", "android", "samsung", "linux", "windows"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Environment :: X11 Applications :: GTK",
+    "Environment :: Win32 (MS Windows)",
+    "Intended Audience :: End Users/Desktop",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Microsoft :: Windows :: Windows 10",
+    "Operating System :: Microsoft :: Windows :: Windows 11",
+    "Programming Language :: Python :: 3",
+    "Topic :: Communications :: File Sharing",
+    "Topic :: Multimedia :: Video :: Display",
+]
 dependencies = [
     "aiohttp>=3.9",
     "cryptography>=41",
@@ -19,7 +35,14 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8", "pytest-asyncio>=0.23"]
-windows = ["pystray>=0.19", "pillow>=10"]
+windows = ["pystray>=0.19", "pillow>=10", "soundcard>=0.4.3; sys_platform == 'win32'",
+           "pywebview>=5.0; sys_platform == 'win32'"]
+
+[project.urls]
+Homepage = "https://digitaldanis.github.io/multidrop/"
+Repository = "https://github.com/digitaldanis/multidrop"
+Issues = "https://github.com/digitaldanis/multidrop/issues"
+Changelog = "https://github.com/digitaldanis/multidrop/releases"
 
 [project.scripts]
 multidrop = "multidrop.cli:main"
@@ -35,3 +58,14 @@ multidrop = ["daemon/web/*", "backends/quickshare/proto/*"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+extend-exclude = ["src/multidrop/backends/quickshare/pb"]   # generated protobuf code
+
+[tool.ruff.lint]
+select = ["F", "E9"]          # real bugs: undefined names, unused imports, syntax errors
+ignore = ["F722"]             # D-Bus signatures as return annotations ("a{qv}")
+
+[tool.ruff.lint.per-file-ignores]
+"tests/test_daemon_offers.py" = ["F811"]   # fixtures imported from test_daemon

@@ -17,11 +17,22 @@ from multidrop.core import (ChecksumError, IncomingFileWriter, OfferFile,
     ("bad\x00name\n.txt", "badname.txt"),
     ("", "unnamed"),
     ("..", "unnamed"),
+    ("//etc/evil", "etc/evil"),                 # "//" is a root on POSIX
+    ("C:evil.txt", "C_evil.txt"),               # drive-relative on Windows
+    ("D:/x/evil.txt", "D_/x/evil.txt"),
+    ("\\\\server\\share\\x", "server/share/x"),     # UNC share
+    ("a.txt:stream", "a.txt_stream"),           # NTFS stream
+    ("CON", "_CON"),
+    ("dir/nul.txt", "dir/_nul.txt"),
+    ('what?<>|*".txt', "what______.txt"),
+    ("name. ", "name"),
+    ("...", "unnamed"),
 ])
 def test_safe_relative_path(name, expected):
     result = safe_relative_path(name)
     assert result == Path(expected)
-    assert not result.is_absolute()
+    assert not result.is_absolute() and not result.drive and not result.anchor
+    assert ".." not in result.parts
 
 
 def test_unique_path(tmp_path):
@@ -64,3 +75,13 @@ def test_writer_rejects_short_and_bad_checksum(tmp_path):
     with pytest.raises(ChecksumError):
         w.finish()
     assert list(tmp_path.iterdir()) == []
+
+
+def test_writer_stays_in_download_dir(tmp_path):
+    """A peer naming an absolute path must not write outside the folder."""
+    downloads, outside = tmp_path / "downloads", tmp_path / "outside"
+    downloads.mkdir()
+    w = IncomingFileWriter(downloads, OfferFile("1", f"/{outside}/x.desktop", 2))
+    w.write(b"hi")
+    path = w.finish()
+    assert path.is_relative_to(downloads) and not outside.exists()

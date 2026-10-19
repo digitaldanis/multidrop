@@ -17,13 +17,17 @@ Endpoints:
   GET  /api/offers                 pending incoming offers
   POST /api/offers/{id}            {"accept": true|false, "files": [ids]?}; files
                                    only where the offer's "partial" is not "none"
-  GET  /api/history                recent events
+  GET  /api/history[?since=SEQ]    recent events (only those after SEQ)
   GET  /api/events[?since=SEQ]     Server-Sent Events (history first, then live)
   GET  /api/jobs                   send jobs
   POST /api/jobs/{id}/cancel
   GET|POST|DELETE /api/share       browser download (LocalSend download API):
                                    status / start (like send, no target; pin,
                                    no_pin, minutes, address) / stop
+  GET|POST|DELETE /api/selection   files waiting to be sent from the UI: list /
+                                   add {"paths": [absolute paths]} / clear
+  POST /api/show                   ask the desktop app to bring its window up
+                                   (event "show_ui"; second start on Windows)
   POST /api/send                   JSON {"target", "paths", "text", "pin"} or
                                    multipart: fields target (JSON), text, pin,
                                    and per file a "path" field then a "file" part
@@ -103,18 +107,27 @@ async def status(request: web.Request) -> web.Response:
     return web.json_response(request.app[DAEMON].status())
 
 
+def _timeout(request: web.Request, longest: float) -> float:
+    try:
+        timeout = float(request.query.get("timeout", 3))
+    except ValueError:
+        raise web.HTTPBadRequest(text="timeout: seconds") from None
+    if timeout != timeout:              # nan slips through min/max
+        raise web.HTTPBadRequest(text="timeout: seconds")
+    return min(max(timeout, 0.5), longest)
+
+
 async def devices(request: web.Request) -> web.Response:
     d = request.app[DAEMON]
     if request.query.get("refresh"):
-        timeout = min(max(float(request.query.get("timeout", 3)), 0.5), 15)
-        await d.discover(timeout)
+        await d.discover(_timeout(request, 15))
     return web.json_response(d.device_groups())
 
 
 async def airplay(request: web.Request) -> web.Response:
     """AirPlay receivers and what they can do (screen, audio), from mDNS."""
     from multidrop.airplay_scan import scan
-    timeout = min(max(float(request.query.get("timeout", 3)), 0.5), 10)
+    timeout = _timeout(request, 10)
     d = request.app[DAEMON]
     return web.json_response(await scan(timeout, d.config.quickshare.mdns_addresses or None))
 
@@ -141,7 +154,11 @@ async def answer_offer(request: web.Request) -> web.Response:
 
 
 async def history(request: web.Request) -> web.Response:
-    return web.json_response(list(request.app[DAEMON].history))
+    try:
+        since = int(request.query.get("since", -1))
+    except ValueError:
+        return _json_error(400, "since: an event number")
+    return web.json_response([e for e in request.app[DAEMON].history if e["seq"] > since])
 
 
 async def jobs(request: web.Request) -> web.Response:
@@ -156,7 +173,10 @@ async def cancel_job(request: web.Request) -> web.Response:
 
 async def events(request: web.Request) -> web.StreamResponse:
     d = request.app[DAEMON]
-    since = int(request.query.get("since", 0) or 0)
+    try:
+        since = int(request.query.get("since", 0) or 0)
+    except ValueError:
+        return _json_error(400, "since: an event number")
     resp = web.StreamResponse(headers={"Content-Type": "text/event-stream",
                                        "Cache-Control": "no-store"})
     await resp.prepare(request)
@@ -196,6 +216,19 @@ async def _json_body(request: web.Request) -> dict:
     return body
 
 
+def _paths(value) -> list[Path]:
+    """A JSON "paths" value: a list of existing absolute paths (or nothing)."""
+    if value is None:
+        return []
+    if not isinstance(value, list) or not all(isinstance(p, str) for p in value):
+        raise ValueError("paths: a list of strings")
+    paths = [Path(p).expanduser() for p in value]
+    for p in paths:
+        if not p.is_absolute() or not p.exists():
+            raise ValueError(f"not an existing absolute path: {p}")
+    return paths
+
+
 async def send(request: web.Request) -> web.Response:
     d = request.app[DAEMON]
     try:
@@ -203,10 +236,7 @@ async def send(request: web.Request) -> web.Response:
             job = await _send_upload(request, d)
         else:
             body = await _json_body(request)
-            paths = [Path(p).expanduser() for p in body.get("paths") or []]
-            for p in paths:
-                if not p.is_absolute() or not p.exists():
-                    return _json_error(400, f"not an existing absolute path: {p}")
+            paths = _paths(body.get("paths"))
             if not paths and not body.get("text"):
                 return _json_error(400, "nothing to send")
             job = await d.send(_target(body.get("target")), paths,
@@ -278,7 +308,7 @@ async def share_stop(request: web.Request) -> web.Response:
 
 async def share_start(request: web.Request) -> web.Response:
     """Like /api/send, without target; options: pin ("" = random, PIN),
-    no_pin (true), minutes."""
+    no_pin (true), minutes, https (true)."""
     d = request.app[DAEMON]
     try:
         if request.content_type.startswith("multipart/"):
@@ -291,9 +321,9 @@ async def share_start(request: web.Request) -> web.Response:
                 raise
         else:
             opts = await _json_body(request)
-            paths = [Path(p).expanduser() for p in opts.get("paths") or []]
-            if not paths or not all(p.is_absolute() and p.exists() for p in paths):
-                return _json_error(400, "paths must be existing absolute paths")
+            paths = _paths(opts.get("paths"))
+            if not paths:
+                return _json_error(400, "nothing to share")
             result = await d.start_share(paths, **_share_options(opts))
     except (TransferError, ValueError, OSError) as e:
         return _json_error(400, str(e) or type(e).__name__)
@@ -305,7 +335,10 @@ def _share_options(opts: dict) -> dict:
     pin = str(opts.get("pin") or "")
     if pin and not (pin.isdigit() and 4 <= len(pin) <= 12):
         raise ValueError("PIN: 4 to 12 digits")
-    minutes = float(opts.get("minutes") or 15)
+    try:
+        minutes = float(opts.get("minutes") or 15)
+    except (TypeError, ValueError):
+        raise ValueError("minutes: a number") from None
     if not 0 < minutes <= 24 * 60:
         raise ValueError("minutes: more than 0, at most 1440")
     address = str(opts.get("address") or "") or None
@@ -314,7 +347,36 @@ def _share_options(opts: dict) -> dict:
             ipaddress.ip_address(address)
         except ValueError:
             raise ValueError("address: an IP address") from None
-    return {"pin": None if no_pin else pin, "minutes": minutes, "address": address}
+    https = opts.get("https") in (True, "1", "true")
+    return {"pin": None if no_pin else pin, "minutes": minutes, "address": address,
+            "https": https}
+
+
+async def selection_get(request: web.Request) -> web.Response:
+    return web.json_response({"paths": request.app[DAEMON].selection})
+
+
+async def selection_add(request: web.Request) -> web.Response:
+    d = request.app[DAEMON]
+    body = await _json_body(request)
+    try:
+        paths = _paths(body.get("paths"))
+    except ValueError as e:
+        return _json_error(400, str(e))
+    if not paths:
+        return _json_error(400, "paths: a non-empty list")
+    d.select(paths)
+    return web.json_response({"paths": d.selection})
+
+
+async def selection_clear(request: web.Request) -> web.Response:
+    request.app[DAEMON].clear_selection()
+    return web.json_response({"paths": []})
+
+
+async def show_ui(request: web.Request) -> web.Response:
+    request.app[DAEMON].emit("show_ui")
+    return web.json_response({})
 
 
 def build_app(daemon: Daemon, token: str) -> web.Application:
@@ -342,5 +404,9 @@ def build_app(daemon: Daemon, token: str) -> web.Application:
         web.get("/api/share", share_get),
         web.post("/api/share", share_start),
         web.delete("/api/share", share_stop),
+        web.get("/api/selection", selection_get),
+        web.post("/api/selection", selection_add),
+        web.delete("/api/selection", selection_clear),
+        web.post("/api/show", show_ui),
     ])
     return app
