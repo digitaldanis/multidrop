@@ -27,7 +27,8 @@ def ui():
 
 def tap(label):
     for node in ui().iter("node"):
-        if label in node.attrib.get("text", ""):
+        # Dialog buttons are shown in capitals ("ANNEHMEN").
+        if label.casefold() in node.attrib.get("text", "").casefold():
             x1, y1, x2, y2 = map(int, re.findall(r"\d+", node.attrib["bounds"]))
             adb("shell", "input", "tap", str((x1+x2)//2), str((y1+y2)//2))
             return
