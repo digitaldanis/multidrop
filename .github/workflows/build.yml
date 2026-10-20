@@ -44,11 +44,11 @@ jobs:
       GST_VERSION: "1.28.8"
       GST_SHA256: e4c41ee6ee9c6c32a45d198463ec08d79bac3bd5fa58adc93d13fe4a08abc9d9
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version: "1.25"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - name: doubletake with the Windows patch
@@ -97,7 +97,7 @@ jobs:
           $env:GST_PLUGIN_SYSTEM_PATH = "$PWD\build\mirror\gstreamer\lib\gstreamer-1.0"
           & build\mirror\gstreamer\bin\gst-launch-1.0.exe d3d11screencapturesrc num-buffers=30 `! d3d11convert `! "video/x-raw(memory:D3D11Memory),format=NV12" `! d3d11download `! mfh264enc `! h264parse `! fakesink
           if ($LASTEXITCODE) { throw "desktop capture failed: $LASTEXITCODE" }
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: mirror-windows
           path: build/mirror
@@ -110,7 +110,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: mirror-windows
           path: build/mirror
